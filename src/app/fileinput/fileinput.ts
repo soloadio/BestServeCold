@@ -10,10 +10,19 @@ import { Geminiservice } from './geminiservice';
 })
 export class Fileinput implements OnInit {
 
+  instructions = {
+    inputInstructions: "",
+    formatInstructions: "",
+  }
+
   constructor(private geminiservice: Geminiservice){
 
   }
 
   ngOnInit(){
+  }
+
+  sendFile(){
+    console.log(this.geminiservice.generateResponse("test this"))
   }
 }

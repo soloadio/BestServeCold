@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { GoogleGenAI } from "@google/genai";
 import { environment } from '../../environments/environment';
+import { Type } from '@google/genai';
 
 
 @Injectable({
@@ -12,12 +13,34 @@ export class Geminiservice {
 
   private getHeader(content: string) {
     return {
-      model: "gemini-2.5-flash",
+      model: "gemini-2.0-flash-lite",
       contents: content,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              recipeName: {
+                type: Type.STRING,
+              },
+              ingredients: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.STRING,
+                },
+              },
+            },
+            propertyOrdering: ["recipeName", "ingredients"],
+          },
+        },
+      },
     }
   }
 
-  generateResponse(content: string){
-    this.ai.models.generateContent(this.getHeader(content))
+  async generateResponse(content: string){
+    const response = await this.ai.models.generateContent(this.getHeader(content));
+    console.log(response.text);
   }
 }
