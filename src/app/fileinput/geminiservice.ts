@@ -39,6 +39,9 @@ export class Geminiservice {
     }
   }
 
+  parseFile(file: File){
+
+  }
   async generateResponse(content: string){
     const response = await this.ai.models.generateContent(this.getHeader(content));
     console.log(response.text);

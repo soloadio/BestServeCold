@@ -1,2 +1,9 @@
-<p>fileinput works!</p>
-<button class="btn" (click)="sendFile()">Press</button>
+<fieldset class="fieldset">
+  <legend class="fieldset-legend">Pick a file</legend>
+
+  <input #fileInput type="file" class="file-input" accept=".csv" id="file" />
+
+  <label class="label"> CSV Format: firstname, lastname, labdescription </label>
+</fieldset>
+
+<button class="btn" (click)="sendFile(fileInput)">Press</button>
