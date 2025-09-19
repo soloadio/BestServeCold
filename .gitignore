@@ -3,3 +3,4 @@
 
 __pycache__/
 .service_account_cred.json
+client_secret.json

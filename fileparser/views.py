@@ -16,6 +16,8 @@ class FileParserAPIView(APIView):
     def get(self, request):
         example_data = {
             "name": "Your Name",
+            "university": "Your University",
+            "program": "Your Program of Study",
             "file": None,
             "prompt": "Optional prompt text"
         }
@@ -26,12 +28,15 @@ class FileParserAPIView(APIView):
     def post(self, request):
         serializer = RequestSerializer(data=request.data)
 
-
+        print(serializer.is_valid())
         if serializer.is_valid():
             
-            file = serializer.validated_data['file']
-            name = serializer.validated_data['name']
-            prompt = serializer.validated_data['prompt']
+            file = serializer.validated_data.get('file', None)
+            university = serializer.validated_data.get('university', None)
+            program = serializer.validated_data.get('program', None)
+            name = serializer.validated_data.get('name', None)
+            prompt = serializer.validated_data.get('prompt', None)
+            useragent = request.META.get('HTTP_USER_AGENT', '')
 
 
             # Read CSV in memory
@@ -53,17 +58,31 @@ class FileParserAPIView(APIView):
                     response = self.client.models.generate_content(
                         model="gemini-2.0-flash",
                         contents=f"""
-                            You are a professional email writer.
+                    You are a professional email writer.
 
-                            Using the following information:
-                            - Scientist First Name: {person["first_name"]}
-                            - Scientist Last Name: {person["last_name"]}
-                            - Scientist Research Results: {conclusionparagraph}
-                            - My Name: {name}
-                            Write a polite and professional email addressed to the scientist.
-                            Do NOT include placeholders, instructions, or extra notes.
-                            Return ONLY the final email content, ready to send, as plain text.
-                            """
+                    Using the following information:
+                    - Scientist First Name: {person["first_name"]}
+                    - Scientist Last Name: {person["last_name"]}
+                    - Scientist Research Results: {conclusionparagraph}
+                    - My Name: {name}
+                    - My University: {university}
+                    - My Program of Study: {program}
+
+                    Write a polite and professional email addressed to the scientist that exactly follows this template:
+
+                    Dear {person["first_name"]} {person["last_name"]},
+
+                    My name is {name}, and I am a student studying {program} at {university}. I am reaching out to express my interest in exploring potential research opportunities within your lab.
+                    
+                    [You can also add a bit here about topics or findings you thought were interesting from the Scientist's Research Results from a paper their lab published.]
+                    
+                    Please find my resume and transcript attached for your review. I sincerely appreciate you taking the time to consider my application. I would welcome the opportunity to meet with you to discuss your research and explore potential ways to contribute to your work. Thank you for your time and consideration, and I look forward to your response.
+                    
+                    Sincerely, 
+                    {name}
+
+                    Do NOT include placeholders, instructions, or extra notes. Return ONLY the final email content, ready to send, as plain text.
+                    """
                     )
                 print(response.text)
 

@@ -14,6 +14,7 @@ from fileparser.views import FileParserAPIView
 def api_root(request, format=None):
     return Response({
         "fileparser": reverse("fileparser", request=request, format=format),
+        # "users": reverse("users", request=request, format=format),
     })
 
 
@@ -22,9 +23,12 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     # path("", include(router.urls)),
     path("", api_root, name="api-root"),
+
     path("file-parser/", FileParserAPIView.as_view(), name="fileparser"),
-    # path("", api_root),
-    # path('', CSVUploadView.as_view(), name='fileparser'),
-     # path("auth/", include("userauth.urls")),
+
+
+    path("users/", include("users.urls")),
+    path("accounts/", include("allauth.urls")),
+    
 ]
    
