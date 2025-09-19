@@ -1,4 +1,6 @@
 from rest_framework import serializers
 
-class FileSerializer(serializers.Serializer):
+class RequestSerializer(serializers.Serializer):
   file = serializers.FileField()
+  name = serializers.CharField(max_length=100)
+  prompt = serializers.CharField(max_length=500)

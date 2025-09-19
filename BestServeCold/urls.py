@@ -7,25 +7,24 @@ from django.urls import include, path
 from django.shortcuts import redirect
 
 
-from fileparser.views import CSVUploadView
-# router.register(r"fileparser", FileparserViewset)
+from fileparser.views import FileParserAPIView
 
 
-# @api_view(["GET"])
-# def api_root(request, format=None):
-#     return Response(
-#         {
-#             # "experience": reverse("experience-list", request=request, format=format),
-
-#         }
-#     )
+@api_view(["GET"])
+def api_root(request, format=None):
+    return Response({
+        "fileparser": reverse("fileparser", request=request, format=format),
+    })
 
 
 urlpatterns = [
 
     path("admin/", admin.site.urls),
+    # path("", include(router.urls)),
+    path("", api_root, name="api-root"),
+    path("file-parser/", FileParserAPIView.as_view(), name="fileparser"),
     # path("", api_root),
-    path('', CSVUploadView.as_view(), name='fileparser'),
+    # path('', CSVUploadView.as_view(), name='fileparser'),
      # path("auth/", include("userauth.urls")),
 ]
    

@@ -47,12 +47,15 @@ INSTALLED_APPS = [
     "allauth.account",
     "rest_framework.authtoken",
     "allauth.socialaccount",
+    'corsheaders',
+
 
     # My Apps
     'fileparser',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -138,8 +141,13 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.TemplateHTMLRenderer',
-    ]
-}
+# REST_FRAMEWORK = {
+#     'DEFAULT_RENDERER_CLASSES': [
+#         'rest_framework.renderers.TemplateHTMLRenderer',
+#     ]
+# }
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://bestservecold.local",
+]
