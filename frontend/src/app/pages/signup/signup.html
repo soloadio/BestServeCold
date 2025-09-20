@@ -1,0 +1,32 @@
+<div class="flex flex-col min-w-dvw min-h-dvh">
+
+    <app-navbar></app-navbar>
+
+
+        <div class="flex-1 flex flex-col justify-center items-center min-w-dvw prose lg:prose-xl">
+
+            <form (submit)="onSubmit()" >
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Username</legend>
+                    <input type="text" class="input" name="username" placeholder="Type here" [(ngModel)]="user.name"/>
+
+                    <legend class="fieldset-legend">Email</legend>
+                    <input type="email" class="input validator"  name="email" placeholder="john123@gmail.com" [(ngModel)]="user.email"/>
+
+                    <legend class="fieldset-legend">Password</legend>
+                    <input type="password" class="input validator" name="password" required placeholder="Password" minlength="8" 
+                        pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" 
+                        title="Must be more than 8 characters, including number, lowercase letter, uppercase letter" [(ngModel)]="user.password"/>
+                    <!-- <p class="validator-hint">
+                        Must be more than 8 characters, including
+                        <br/>At least one number
+                        <br/>At least one lowercase letter
+                        <br/>At least one uppercase letter
+                    </p> -->
+
+                    <button type="submit" class="mt-4 btn btn-primary btn-outline btn-xs sm:btn-sm md:btn-md lg:btn-lg xl:btn-xl">Sign Up</button>
+                </fieldset>
+            </form>
+
+    </div>
+</div>
