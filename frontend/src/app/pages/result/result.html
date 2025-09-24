@@ -1,0 +1,53 @@
+<div class="prose lg:prose-xl flex flex-col min-w-dvw min-h-dvh justify-center items-center px-5 sm:px-20 md:px-30 lg:px-50 mt-10">
+  <div>
+    <button class="btn btn-outline btn-primary" (click)="returnToDashboard()">Return to Dashboard</button>
+  </div>
+  <ul class="list bg-base-100 rounded-box shadow-md">
+    
+    <h3 class="p-4 pb-2 opacity-60 tracking-wide prose lg:prose-xl">
+      {{res.user_full_name}}'s Generated Drafts {{res.created_at}}
+    </h3>
+    
+    <li *ngFor="let draft of res.drafts; let i = index" class="list-row">
+      <div class="text-4xl font-thin opacity-30 tabular-nums">{{i+1}}</div>
+      <div class="align-top">
+        <div>
+          <p class="prose lg:prose-xl" style="margin-top: 0">{{draft.name}}
+          <ng-template #noWebsite>{{draft.name}}</ng-template>
+          {{draft.email}}</p>
+        </div>
+        <div class="opacity-60">
+          <a [href]="draft.url">{{draft.url}}</a>
+        </div>
+      </div>
+      <div class="list-col-wrap prose lg:prose-xl w-full">
+        <h3>Subject: {{draft.content.subject}}</h3>
+        <h4>{{draft.content.greeting}}</h4>
+        <p>{{draft.content.paragraph1}}</p>
+        <p>{{draft.content.paragraph2}}</p>
+        <p>{{draft.content.paragraph3}}</p>
+        <h4>{{draft.content.closing}}</h4>
+        <h4>{{res.user_full_name}}</h4>
+      </div>
+      <button class="btn btn-square btn-ghost">
+        <svg class="size-[1.2em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor">
+            <path d="M6 3L20 12 6 21 6 3z"></path>
+          </g>
+        </svg>
+      </button>
+      <button class="btn btn-square btn-ghost" (click)="copyEmail(draft)">
+        <svg class="size-[1.2em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor">
+            <path d="M8 3H19V16H8V3Z"></path>
+            <path d="M5 7H4a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1v-1"></path>
+          </g>
+        </svg>
+      </button>
+    </li>
+
+    <!-- Show this if no drafts exist -->
+    <li *ngIf="res.drafts.length === 0" class="list-row">No drafts available.</li>
+
+  </ul>
+</div>
