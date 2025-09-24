@@ -1,33 +1,37 @@
 <div class="flex flex-col min-w-dvw min-h-dvh">
   <app-navbar></app-navbar>
 
-  <div class="flex-1 flex flex-col justify-center items-center min-w-dvw prose lg:prose-xl">
-    <form (ngSubmit)="emailSubmission()" #emailForm="ngForm" enctype="multipart/form-data">
-      <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
-        <legend class="fieldset-legend">Email Information</legend>
+  <div class="flex flex-row">
+    <div class="flex-1 flex flex-col justify-center items-center min-w-dvw prose lg:prose-xl">
+      <form (ngSubmit)="emailSubmission()" #emailForm="ngForm" enctype="multipart/form-data">
+        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
+          <legend class="fieldset-legend">Email Information</legend>
 
-        <label class="label">Name</label>
-        <input type="text" class="input" placeholder="Full Name" [(ngModel)]="emaildata.name" name="name"/>
+          <label class="label">Name</label>
+          <input type="text" class="input" placeholder="Full Name" [(ngModel)]="emaildata.name" name="name"/>
 
-        <label class="label">University/College</label>
-        <input type="text" class="input" placeholder="e.g. McMaster University" [(ngModel)]="emaildata.university" name="university"/>
+          <label class="label">University/College</label>
+          <input type="text" class="input" placeholder="e.g. McMaster University" [(ngModel)]="emaildata.university" name="university"/>
 
-        <label class="label">Program</label>
-        <input type="text" class="input" placeholder="e.g. Health Science" [(ngModel)]="emaildata.program" name="program"/>
-        
-        <label class="label">Upload CSV file</label>
-        <input type="file" class="file-input" (change)="onFileSelected($event)"/>
+          <label class="label">Program</label>
+          <input type="text" class="input" placeholder="e.g. Health Science" [(ngModel)]="emaildata.program" name="program"/>
+          
+          <label class="label">Upload CSV file</label>
+          <input type="file" class="file-input" (change)="onFileSelected($event)"/>
 
-        <label class="label">Email Prompt</label>
-        <input type="text" class="input" placeholder="Leave blank for default" [(ngModel)]="emaildata.prompt" name="prompt"/>
+          <label class="label">Email Prompt</label>
+          <input type="text" class="input" placeholder="Leave blank for default" [(ngModel)]="emaildata.prompt" name="prompt"/>
 
-        <button class="btn btn-primary mt-4" type="submit" [disabled]="loading">
-          <ng-container *ngIf="!loading">Generate Drafts</ng-container>
-          <ng-container *ngIf="loading">
-            <span class="loading loading-spinner loading-lg"></span>
-          </ng-container>
-        </button>
-      </fieldset>
-    </form>
+          <button class="btn btn-primary mt-4" type="submit" [disabled]="loading">
+            <ng-container *ngIf="!loading">Generate Drafts</ng-container>
+            <ng-container *ngIf="loading">
+              <span class="loading loading-spinner loading-lg"></span>
+            </ng-container>
+          </button>
+        </fieldset>
+      </form>
+    </div>
+
+    
   </div>
 </div>
