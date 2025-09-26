@@ -51,28 +51,24 @@ class DraftGeneratorAPIView(APIView):
                 fullname = f"{person['first_name']} {person['last_name']}"
                 print(f"Processing: {fullname}")
 
-
-                # scientisturl = crawler.getSignificantWebsites(fullname + " Lab")[0]
-
                 try:
-                    # researchPaperURL, conclusionparagraph = crawler.getResearchInfo(scientisturl)
+                    researchdata = crawler.process(f"{fullname} Research Paper")
+                    url = researchdata['url']
+                    data = researchdata['data']
 
-                    researchPaperURL, conclusionparagraph = crawler.getResearchInfo(f"{fullname} Research Paper")
-
-                    if (researchPaperURL == None or conclusionparagraph == None):
-                        raise ValueError(f"Missing required research information: "
-                     f"researchPaperURL={researchPaperURL}, "
-                     f"conclusionparagraph={conclusionparagraph}")
+                    if (url or data):
+                        raise ValueError(f"Missing required research information: url={url} data={data}")
+                    
                 except Exception as e:
                     print(f"Error processing {fullname}: {e}")
-                    researchPaperURL = "n/a"
-                    conclusionparagraph = "Could not find research paper."
+                    url = "n/a"
+                    data = "Could not find research paper."
 
                 # Call Gemini API
 
                 # print(conclusionparagraph)
-                if len(conclusionparagraph) == 0:
-                    conclusionparagraph = "No research results found, please research the scientist's recent work online."
+                if len(data) == 0:
+                    data = "No research results found, please research the scientist's recent work online."
 
                 if len(prompt) < 10:
                     print("No prompt provided, using default.")
@@ -84,7 +80,7 @@ class DraftGeneratorAPIView(APIView):
                     Information:
                     - Scientist First Name: {person['first_name']}
                     - Scientist Last Name: {person['last_name']}
-                    - Scientist Research Results: {conclusionparagraph}
+                    - Scientist Research Results: {data}
                     - My Name: {name}
                     - My University: {university}
                     - My Program of Study: {program}
@@ -115,7 +111,7 @@ class DraftGeneratorAPIView(APIView):
 
 
                 email_data = Email.model_validate_json(response.text)
-                if conclusionparagraph == "Could not find research paper.":
+                if data == "Could not find research paper.":
                     email_data.paragraph2 = "Could not find research paper."
 
 
@@ -123,11 +119,10 @@ class DraftGeneratorAPIView(APIView):
                 print(email_data)
                 draft = Draft.objects.create(
                     name=fullname,
-                    url=researchPaperURL,
+                    url=url,
                     content=email_data.model_dump(),
                     email=person["gmail"],
                     subject=email_data.subject,
-                    # website=scientisturl
                 )
                 batch.drafts.add(draft)
 

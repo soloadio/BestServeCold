@@ -4,32 +4,28 @@ import cloudscraper
 import time
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 import requests
-from bs4 import BeautifulSoup
-
 from playwright_stealth import Stealth
 
 class ScientificWebCrawler:
 
     def __init__(self):
         self.scraper = cloudscraper.create_scraper()
-        self.page_load_delay = 2  # seconds
-        self.section_wait_timeout = 5000  # milliseconds
-        self.retry_delay = 2  # seconds
+        self.page_load_delay = 2
+        self.retry_delay = 2
         self.max_retries = 3
         self.base_url = os.environ.get("GOOGLE_SEARCH_SERVER")
-
-    # def getSignificantWebsite(self, query: str):
-    #     params = self.returnParams(query)
-    #     search = GoogleSearch(params)
-    #     results = search.get_dict()
-    #     print(results)
-    #     url = results["organic_results"][0]["link"]
-    #     return url
     
-    def getSignificantWebsites(self, query: str, num_results: int = 1):
+    def get_websites(self, query: str, num_results: int = 1):
         """
-        Returns the top N search result URLs for a query using the Google Custom Search API
+        Returns the top 'num_results' search result URLs for a query using the Google Custom Search API
         via the Node.js MCP server.
+
+        Args:
+            query (str): The string to search in Google
+            num_results (int): The number of results to return
+        
+        Returns:
+            list (str): A list of URLs
         """
         if not query or not query.strip():
             raise ValueError("Query must be a non-empty string.")
@@ -47,8 +43,6 @@ class ScientificWebCrawler:
 
             data = response.json()
 
-            print(data)
-
             # Extract only the URLs
             urls = [item['url'] for item in data['results']]
 
@@ -58,87 +52,45 @@ class ScientificWebCrawler:
             print(f"❌ Error calling search API: {e}")
             return []
 
+    def get_researchdata(self, urls: list[str]):
+        """
+        Returns any single valid research data from urls.
 
+        Args:
+            urls (list[str]): A list of urls to process research data.
+        
+        Returns:
+            researchdata (dict): A key value pair of data from a research paper. Format:
+                "url" : "www.example.com" -> The URL the research data is processed from
+                "data" : The research data from url.
 
-    def returnParams(self, query: str):
-        return {
-            "engine": "google",
-            "q": str(query),
-            "num": 1,
-            "api_key": os.environ.get("SERPAPI_KEY"),
-            "location": "Toronto, Ontario, Canada",
-        }
-
-    def getResearchInfo(self, url):
-        # paper_links = self.getAllRelativeLinks(url)
-        paper_links = self.getAllRelativeLinks2(url)
-        print(f"Found {len(paper_links)} research papers:", paper_links)
-
-        for link in paper_links:
+                {'url': None, 'data': None} -> Returns none if no research data was found.
+        """
+        researchdata = {'url': None, 'data': None}
+        for url in urls:
             try:
-                conclusion = self.getConclusionParagraph(link)
-                if conclusion:
-                    return link, conclusion
+                data = self._get_datafromurl(url)
+                if data:
+                    researchdata['url'] = url
+                    researchdata['data'] = data
+                    return researchdata
             except Exception as e:
-                print(f"Failed to get conclusion for {link}: {e}")
+                print(f"Failed to get conclusion for {url}: {e}")
                 continue
 
-        return None, None
-
-    def getAllRelativeLinks(self, url):
-        for attempt in range(self.max_retries):
-            try:
-                with sync_playwright() as p:
-                    browser = p.webkit.launch(headless=True)
-                    page = browser.new_page()
-                    page.goto(url, timeout=15000)  # navigation timeout 15s
-
-                    # Wait for page content to load
-                    time.sleep(self.page_load_delay)
-
-                    links = page.eval_on_selector_all(
-                        'a[href]',
-                        'elements => elements.map(el => el.href)'
-                    )
-
-                    filtered_links = [
-                        link for link in links
-                        if ("https://doi.org/" in link) and "account" not in link
-                    ]
-
-                    browser.close()
-                    if filtered_links:
-                        return filtered_links
-
-            except PlaywrightTimeoutError:
-                print(f"Attempt {attempt + 1}: Page load timeout, retrying...")
-            except Exception as e:
-                print(f"Attempt {attempt + 1} failed: {e}")
-
-            time.sleep(self.retry_delay)
-
-        return []
+        return researchdata
     
-
-    def getAllRelativeLinks2(self, query):
-        return self.getSignificantWebsites(query, 10)
-
-
-    def getConclusionParagraph(self, researchPaperURL):
+    def _get_datafromurl(self, url: str, filter: list[str]=["conclu", "discussion"]):
         final_result = ""
         with Stealth().use_sync(sync_playwright()) as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
-            page.goto(researchPaperURL, timeout=10000)
+            page.goto(url, timeout=10000)
 
             
             try:
                 # Wait for section elements to appear
-                page.wait_for_selector('section', timeout=self.section_wait_timeout)
-
-                # Print out the full page HTML each attempt
-                html_content = page.content()
-                print(html_content[:500])  # print first 2000 chars for readability
+                page.wait_for_selector('section', timeout=5000)
 
                 sections = page.query_selector_all('section')
                 print(f"Found {len(sections)} sections")
@@ -148,33 +100,125 @@ class ScientificWebCrawler:
                     if header:
                         header_text = header.inner_text().lower()
                         print(f"Checking section header: {header_text}")
-                        if "conclu" in header_text or "discussion" in header_text:
-                            paragraphs = section.query_selector_all('p, div')
-                            final_result = " ".join([p.inner_text().strip() for p in paragraphs])
-                            print("Conclusion/Discussion section found!")
-                            break
+
+                        for word in filter:
+                            if word in header_text:
+                                paragraphs = section.query_selector_all('p, div')
+                                final_result = " ".join([p.inner_text().strip() for p in paragraphs])
+                                print(f"{word} section found!")
+                                break
 
             except PlaywrightTimeoutError:
-                print(f"Couldnt find")
+                print(f"Page load timeout, could not load page: {url}")
             except Exception as e:
-                print(f"Couldnt find")
-
-            time.sleep(self.retry_delay)
-
+                print(f"Error retrieving data from: {url}. Error: {e}")
+            
             browser.close()
         return final_result
 
 
 
+    def get_allrelativelinks(self, url: str, filter: list[str]=["https://doi.org/"], exclude: list[str]=["account"]):
+        """
+        Returns a list of filtered relative urls on a given URL.
+        
+        Args:
+            url (str): The url to be processed.
+            filter (list[str]): A list of possible strings to filter for in the URLs.
+            exclude (list[str]): A list of possible strings in URL to be excluded from.
+
+        Returns:
+            filtered_urls (list[str]): A list of filtered relative urls on a given URL.
+        """
+        try:
+            with sync_playwright() as p:
+                browser = p.webkit.launch(headless=True)
+                page = browser.new_page()
+                page.goto(url, timeout=8000)
+
+                urls = page.eval_on_selector_all(
+                    'a[href]',
+                    'elements => elements.map(el => el.href)'
+                )
+
+                browser.close()
+
+                filtered_urls = self._filterurls(urls, filter, exclude)
+                
+                if filtered_urls:
+                    return filtered_urls
+
+        except PlaywrightTimeoutError:
+            print(f"Page load timeout, could not load page: {url}")
+        except Exception as e:
+            print(f"Error retrieving links on: {url}. Error: {e}")
+
+        return []
+    
+
+    def get_allrelativeurls2(self, query: str, filter: list[str]=[], exclude: list[str]=[]):
+        """
+        Returns a list of a maximum of 10 filtered relative urls based on a Google query
+        
+        Args:
+            url (str): The url to be processed.
+            filter (list[str]): A list of possible strings to filter for in the URLs.
+            exclude (list[str]): A list of possible strings in URL to be excluded from.
+
+        Returns:
+            filtered_urls (list[str]): A list of filtered relative links on a given URL.
+        """
+        urls = self.get_websites(query, 10)
+
+        filtered_urls = self._filterurls(urls, filter, exclude)
+
+        return filtered_urls
+    
+
+    def _filterurls(self, urls: list[str], filter: list[str], exclude: list[str]):
+        """
+        Returns a list of filtered urls based on filter and exclude.
+        
+        Args:
+            urls (str): The list of urls to be filtered.
+            filter (list[str]): A list of possible strings to filter for in the URLs.
+            exclude (list[str]): A list of possible strings in URL to be excluded from.
+
+        Returns:
+            filtered_url (list[str]): A filtered list of urls.
+        """
+        filtered_url = []
+        if not filter and not exclude:
+            return urls
+        
+        for url in urls:
+            # Filters each of the links, removing any link that contains an exclusion and doesn't contain the filter
+
+            for exclusion in exclude:
+                if exclusion in url:
+                    break
+                else:
+                    for word in filter:
+                        if word in url:
+
+                            filtered_url.append(word)
+        
+        return filtered_url
+
+
+    def process(self, query: str):
+        urls = self.get_allrelativeurls2(query)
+        print(f"Found {len(urls)} URLs: {', '.join(urls)}")
+
+        researchdata = self.get_researchdata(urls)
+        print(f"Found data in {researchdata['url']}: {researchdata['data']}")
+
+        return researchdata
+
+
 
 if __name__ == "__main__":
-    import asyncio
-    from playwright.async_api import async_playwright
-    from playwright_stealth import Stealth
     from dotenv import load_dotenv
-    import random
-    import time
-    from playwright.sync_api import sync_playwright, TimeoutError
     load_dotenv()
     googleTest = ScientificWebCrawler()
     people = ["Ying Fu Li Lab"]
