@@ -223,10 +223,6 @@ if __name__ == "__main__":
     googleTest = ScientificWebCrawler()
     people = ["Ying Fu Li Lab"]
 
-  # print(googleTest.getAllRelativeLinks("https://taari.mcmaster.ca/labs/kretz-lab/"))
-  # for x in googleTest.getAllRelativeLinks("https://taari.mcmaster.ca/labs/kretz-lab/"):
-  #   print(x)
-
 
     for x in people:
         scientisturl = googleTest.getSignificantWebsites(x)[0]

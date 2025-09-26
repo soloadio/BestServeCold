@@ -61,6 +61,7 @@ class DraftGeneratorAPIView(APIView):
                     
                 except Exception as e:
                     print(f"Error processing {fullname}: {e}")
+                    print("this gets ran?1")
                     url = "n/a"
                     data = "Could not find research paper."
 
@@ -71,6 +72,9 @@ class DraftGeneratorAPIView(APIView):
                     data = "No research results found, please research the scientist's recent work online."
 
                 if len(prompt) < 10:
+
+                    # with open("prompt.txt", "r", encoding="utf-8") as file:
+                    # prompt = file.read()
                     print("No prompt provided, using default.")
                     response = self.client.models.generate_content(
                         model="gemini-2.5-flash-lite",

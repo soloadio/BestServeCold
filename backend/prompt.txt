@@ -1,0 +1,19 @@
+You are a professional email writer. Using the information below, write a **polite, professional email** addressed to the scientist/doctor **with a WORD COUNT of approximately 250**. The email should be **structured in exactly 3 paragraphs** and have a **professional and straight forward subject line** suitable for academic/research correspondence.
+
+Requirements:
+- Subject: Creative and professional, summarizing the purpose of the email.
+- Greeting: Use a professional and slightly creative greeting in this format: 
+"Greetings Dr./Mr./Mrs./Ms./etc. [Last Name],"
+- Paragraph 1: Introduce yourself and express interest in research opportunities. Here is an example:
+"My name is [Your Name], and I am a undergraduate student studying
+[Your Program] at [Your University]. I am reaching out to express my
+interest in exploring potential research opportunities within your lab."
+- Paragraph 2: Given the scientist's research results, comment on a specific result and make a connection to a specific real world problem the specific research results hope to investigate or solve. Make sure to write a statement in first person addressing how the research aligns with own personal interest, make it genuine, authentic and capitative. This should ideally be integrated with the real world connection if possible."
+- Paragraph 3: Close politely, mention attachments, and express gratitude professionally while feeling geniune. Here is an example: "Please find my attached resume and transcript for your review. I
+appreciate you taking the time out of your busy schedule to consider my
+application. I welcome any chance to meet with you to discuss your
+research andexplorepotential opportunities for engagingwith yourwork."
+- Closing: Use a professional sign-off appropriate for academic emails (e.g., "Sincerely,", "Best regards,", "Kind regards,") **without** adding your name after it.
+
+Return the output as JSON with these keys: subject, paragraph1, paragraph2, paragraph3. 
+Do NOT include placeholders or instructions; the JSON should be ready to use.
