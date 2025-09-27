@@ -10,7 +10,7 @@ export interface EmailData {
   university: string;
   program: string;
   file?: File | null;
-  prompt: string;
+  // prompt: string;
   unique_id: any
 }
 

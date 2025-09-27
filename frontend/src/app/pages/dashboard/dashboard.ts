@@ -16,7 +16,8 @@ import { CommonModule } from '@angular/common'; // <-- Add this
 })
 export class Dashboard implements OnInit{
   batches = null;
-  loading = false; // <- Add this
+  loading = false;
+  error = false;
 
   constructor(private backendservice: Backendservice, private router: Router){}
 
@@ -40,7 +41,7 @@ export class Dashboard implements OnInit{
     name: '',
     university: '',
     program: '',
-    prompt: '',
+    // prompt: '',
     file: null,
     unique_id: null,
   };
@@ -62,7 +63,7 @@ export class Dashboard implements OnInit{
     formData.append('name', this.emaildata.name);
     formData.append('university', this.emaildata.university);
     formData.append('program', this.emaildata.program);
-    formData.append('prompt', this.emaildata.prompt || '');
+    // formData.append('prompt', this.emaildata.prompt || '');
     formData.append('unique_id', this.emaildata.unique_id || '');
     if (this.emaildata.file) {
       formData.append('file', this.emaildata.file);
@@ -70,6 +71,8 @@ export class Dashboard implements OnInit{
 
     this.backendservice.sendEmail(formData).subscribe({
       next: (res: any) => {
+        this.loading = false;
+        this.error = false;
         console.log(res['message'])
         console.log(res['id'])
         sessionStorage.setItem('currentbatchid', res['id'])
@@ -78,6 +81,7 @@ export class Dashboard implements OnInit{
       error: (err: any) => {
         console.error('Error generating draft', err);
         this.loading = false; // <- hide spinner if error
+        this.error = true;
       }
     });
   }
@@ -85,5 +89,6 @@ export class Dashboard implements OnInit{
   goToBatch(batchId: number) {
     this.router.navigate(['/dashboard/result', sessionStorage.getItem('unique_id'), batchId]);
   }
+
 }
 

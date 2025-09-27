@@ -1,4 +1,62 @@
-<div class="flex flex-col min-h-screen min-w-screen">
+<div class="flex flex-col min-h-screen min-w-screen relative">
+  <!-- Toast Notification -->
+  <div class="absolute top-4 right-4 z-50" *ngIf="loading">
+    <div
+      class="max-w-xs bg-white border border-gray-200 rounded-xl shadow-lg dark:bg-neutral-800 dark:border-neutral-700"
+      role="alert"
+      tabindex="-1"
+      aria-labelledby="hs-toast-stack-toggle-update-label"
+    >
+      <div class="flex p-4">
+        <div class="shrink-0">
+          <svg
+            class="shrink-0 size-4 text-teal-500 mt-0.5"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
+            ></path>
+          </svg>
+        </div>
+        <div class="ms-3">
+          <p
+            id="hs-toast-stack-toggle-update-label"
+            class="text-sm text-gray-700 dark:text-neutral-400"
+          >
+            Your data has been successfully sent, please wait patiently as we process it.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="absolute top-4 right-4 z-50" *ngIf="error">
+    <div
+      class="max-w-xs bg-white border border-gray-200 rounded-xl shadow-lg dark:bg-neutral-800 dark:border-neutral-700"
+      role="alert"
+      tabindex="-1"
+      aria-labelledby="hs-toast-stack-toggle-update-label"
+    >
+      <div class="flex p-4">
+        <div class="shrink-0">
+          <svg class="shrink-0 size-4 text-red-500 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"></path>
+          </svg>
+        </div>
+        <div class="ms-3">
+          <p
+            id="hs-toast-stack-toggle-update-label"
+            class="text-sm text-gray-700 dark:text-neutral-400"
+          >
+            There was an issue processing your request, please try again.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
   <!-- Navbar stays at top -->
   <app-navbar></app-navbar>
 
@@ -7,26 +65,65 @@
     <div class="flex flex-row items-center justify-center gap-12">
       <!-- Form Column -->
       <div class="flex flex-col items-center justify-center prose lg:prose-xl">
-        <form (ngSubmit)="emailSubmission()" #emailForm="ngForm" enctype="multipart/form-data">
-          <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
+        <form
+          (ngSubmit)="emailSubmission()"
+          #emailForm="ngForm"
+          enctype="multipart/form-data"
+        >
+          <fieldset
+            class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4 pt-0 prose lg:prose-xl" 
+          >
             <legend class="fieldset-legend">Email Information</legend>
 
-            <label class="label">Name</label>
-            <input type="text" class="input" placeholder="Full Name" [(ngModel)]="emaildata.name" name="name"/>
+            <label class="label ">Name</label>
+            <input
+              type="text"
+              class="input"
+              placeholder="Full Name"
+              [(ngModel)]="emaildata.name"
+              name="name"
+            />
 
             <label class="label">University/College</label>
-            <input type="text" class="input" placeholder="e.g. McMaster University" [(ngModel)]="emaildata.university" name="university"/>
+            <input
+              type="text"
+              class="input"
+              placeholder="e.g. McMaster University"
+              [(ngModel)]="emaildata.university"
+              name="university"
+            />
 
             <label class="label">Program</label>
-            <input type="text" class="input" placeholder="e.g. Health Science" [(ngModel)]="emaildata.program" name="program"/>
-            
-            <label class="label">Upload CSV file</label>
-            <input type="file" class="file-input" (change)="onFileSelected($event)"/>
+            <input
+              type="text"
+              class="input"
+              placeholder="e.g. Health Science"
+              [(ngModel)]="emaildata.program"
+              name="program"
+            />
 
-            <label class="label">Email Prompt</label>
-            <input type="text" class="input" placeholder="Leave blank for default" [(ngModel)]="emaildata.prompt" name="prompt"/>
+            <label class="label">Upload CSV: fullname,email</label>
+            <input
+              type="file"
+              class="file-input"
+              
+              (change)="onFileSelected($event)"
+            />
 
-            <button class="btn btn-primary mt-4" type="submit" [disabled]="loading">
+            <!-- <label class="label">Email Prompt</label>
+            <input
+              type="text"
+              class="input"
+              placeholder="Leave blank for default"
+              [(ngModel)]="emaildata.prompt"
+              name="prompt"
+            /> -->
+
+            <button
+              class="btn btn-primary mt-4"
+              type="submit"
+              [disabled]="loading"
+            >
               <ng-container *ngIf="!loading">Generate Drafts</ng-container>
               <ng-container *ngIf="loading">
                 <span class="loading loading-spinner loading-lg"></span>
@@ -36,17 +133,42 @@
         </form>
       </div>
 
-      <!-- Batch List Column -->
-      <div class="flex flex-col items-center justify-center min-w-[200px] max-w-xs p-4 ">
-        <h2 class="text-lg font-semibold mb-2">Recent Batches</h2>
-        <ul class="menu bg-base-200 rounded-box w-56">
+<!-- Batch List Column -->
+      <!-- <div class="flex flex-col items-start justify-center p-4 w-auto max-w-full" >
+        <h2 class="text-lg font-semibold mb-2 prose lg:prose-xl">Recent Batches</h2>
+        <ul class="menu bg-base-200 rounded-box w-auto">
           <li *ngFor="let batch of batches">
-            <a class="link link-hover link-primary" (click)="goToBatch(batch.id)">
+            <a
+              class="link link-hover link-primary prose lg:prose-xl whitespace-nowrap"
+              (click)="goToBatch(batch.id)"
+            >
               {{ batch.created_at | date:'medium' }}
             </a>
           </li>
         </ul>
+      </div> -->
+          <div class="flex flex-col items-center justify-center prose lg:prose-xl">
+        <form
+          (ngSubmit)="emailSubmission()"
+          #emailForm="ngForm"
+          enctype="multipart/form-data"
+        >
+          <fieldset
+            class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4 pt-0 prose lg:prose-xl" 
+          >
+            <legend class="fieldset-legend">Recent Batches</legend>
+
+            <label *ngFor="let batch of batches" class="label">            <a
+              class="link link-hover link-primary prose lg:prose-xl whitespace-nowrap"
+              (click)="goToBatch(batch.id)"
+            >
+              {{ batch.created_at | date:'medium' }}
+            </a></label>
+
+          </fieldset>
+        </form>
       </div>
+    
     </div>
   </div>
 </div>

@@ -122,7 +122,7 @@ class ScientificWebCrawler:
         with Stealth().use_sync(sync_playwright()) as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
-            page.goto(url, timeout=12000)
+            page.goto(url, timeout=8000)
 
             
             try:

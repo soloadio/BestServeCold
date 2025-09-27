@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Backendservice } from '../../services/backendservice';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { Navbar } from '../../navbar/navbar';
 
 
 @Component({
@@ -10,9 +11,15 @@ import { Router } from '@angular/router';
   standalone: true,
   templateUrl: './result.html',
   styleUrl: './result.scss',
-  imports: [CommonModule],
+  imports: [CommonModule, Navbar],
 })
 export class Result implements OnInit {
+
+  loading = true;
+  error = false;
+
+  sent = false;
+  senderror = false
 
   id!: string;
   uid!: string;
@@ -31,6 +38,8 @@ export class Result implements OnInit {
 
     this.backendservice.getBatch(this.id, this.uid).subscribe({
     next: (res: any) => {
+      this.loading = false;
+      this.error = false;
       this.res = res
 
       this.user_full_name = res.user_full_name
@@ -38,6 +47,8 @@ export class Result implements OnInit {
     },
       error: (err: any) => {
         console.error('Error retrieving batch', err);
+        this.loading = false
+        this.error = true
       }
     });
   }
@@ -121,12 +132,18 @@ ${this.user_full_name || ''}`;
 
     const data = await response.json();
     console.log('Draft created:', data);
-    alert('Draft successfully created in Gmail!');
+    this.senderror = false;
+    this.sent = true;
   } catch (error) {
     console.error('Failed to create draft:', error);
-    alert('Failed to create draft.');
+    this.sent = false;
+    this.senderror = true;
   }
 }
-
+  async draftAllEmail() {
+    for (let draft of this.res.drafts as any[]) {
+      this.draftEmail(draft);
+    }
+  }
 
 }
