@@ -19,7 +19,7 @@ export class Dashboard implements OnInit{
   loading = false;
   error = false;
 
-  constructor(private backendservice: Backendservice, private router: Router){}
+  constructor(private readonly backendservice: Backendservice, private readonly router: Router){}
 
   private readonly eventBus = inject(EventBusService);
 
