@@ -1,10 +1,12 @@
 from serpapi import GoogleSearch
 import os
 import cloudscraper
-import time
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 import requests
 from playwright_stealth import Stealth
+from .multitasker import Multitasker
+
+import time
 
 class ScientificWebCrawler:
 
@@ -52,54 +54,89 @@ class ScientificWebCrawler:
             print(f"❌ Error calling search API: {e}")
             return []
 
-    def get_researchdata(self, urls: list[str]):
+    def worker(self, url):
         """
-        Returns any single valid research data from urls.
-
-        Args:
-            urls (list[str]): A list of urls to process research data.
-        
-        Returns:
-            researchdata (dict): A key value pair of data from a research paper. Format:
-                "url" : "www.example.com" -> The URL the research data is processed from
-                "data" : The research data from url.
-
-                {'url': None, 'data': None} -> Returns none if no research data was found.
+        Worker function to fetch data from a given URL.
         """
         researchdata = {'url': None, 'data': None}
-        for url in urls:
-            try:
-                data = self._get_datafromurl(url)
-                if data:
-                    researchdata['url'] = url
-                    researchdata['data'] = data
-                    return researchdata
-            except Exception as e:
-                print(f"Failed to get conclusion for {url}: {e}")
-                continue
-
+        print(f"Process (PID {os.getpid()}), starting search for: {url}")
+        try:
+            data = self._get_datafromurl(url)
+            # print("uhhh", data)
+            if data:
+                researchdata['url'] = url
+                researchdata['data'] = data
+                return researchdata
+        except Exception as e:
+            print(f"Failed to get conclusion for {url}: {e}")
         return researchdata
     
+    def valid_data(self, result):
+        if (result['url'] and result['data']):
+            return True
+        return False
+
+
+    def get_researchdata(self, urls: list[str]):
+        """
+        Launches multiple processes to fetch data concurrently.
+        Returns the first valid research data and kills other processes.
+        """
+        multitasker = Multitasker()
+        researchdata = multitasker.run(self.worker, urls, (), self.valid_data, stop_on_first_valid=False)
+        
+        # print(researchdata)
+        return researchdata
+
+
+    # def get_researchdata(self, urls: list[str]):
+    #     """
+    #     Returns any single valid research data from urls.
+
+    #     Args:
+    #         urls (list[str]): A list of urls to process research data.
+        
+    #     Returns:
+    #         researchdata (dict): A key value pair of data from a research paper. Format:
+    #             "url" : "www.example.com" -> The URL the research data is processed from
+    #             "data" : The research data from url.
+
+    #             {'url': None, 'data': None} -> Returns none if no research data was found.
+    #     """
+
+    #     researchdata = {'url': None, 'data': None}
+
+    #     for url in urls:
+    #         try:
+    #             data = self._get_datafromurl(url)
+    #             if data:
+    #                 researchdata['url'] = url
+    #                 researchdata['data'] = data
+    #         except Exception as e:
+    #             print(f"Failed to get conclusion for {url}: {e}")
+    #     return researchdata
+
+
     def _get_datafromurl(self, url: str, filter: list[str]=["conclu", "discussion"]):
         final_result = ""
         with Stealth().use_sync(sync_playwright()) as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
-            page.goto(url, timeout=10000)
+            page.goto(url, timeout=12000)
 
             
             try:
                 # Wait for section elements to appear
                 page.wait_for_selector('section', timeout=5000)
 
+                time.sleep(5)
+                
                 sections = page.query_selector_all('section')
-                print(f"Found {len(sections)} sections")
 
                 for section in sections:
                     header = section.query_selector('h2')
                     if header:
                         header_text = header.inner_text().lower()
-                        print(f"Checking section header: {header_text}")
 
                         for word in filter:
                             if word in header_text:
@@ -210,10 +247,15 @@ class ScientificWebCrawler:
         urls = self.get_allrelativeurls2(query)
         print(f"Found {len(urls)} URLs: {', '.join(urls)}")
 
-        researchdata = self.get_researchdata(urls)
-        print(f"Found data in {researchdata['url']}: {researchdata['data']}")
+        collection_researchdata = self.get_researchdata(urls)
 
-        return researchdata
+        noresult = {'url': None, 'data': None}
+        for researchdata in collection_researchdata:
+            if researchdata['url'] and researchdata['data']:
+                # print(f"Found data in {researchdata['url']}: {researchdata['data']}")
+                return researchdata
+    
+        return noresult
 
 
 
