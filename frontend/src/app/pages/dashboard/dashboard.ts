@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Navbar } from '../../navbar/navbar';
 import { FormsModule } from '@angular/forms';
 import { Backendservice, EmailData } from '../../services/backendservice';
@@ -14,12 +14,27 @@ import { CommonModule } from '@angular/common'; // <-- Add this
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
-export class Dashboard {
+export class Dashboard implements OnInit{
+  batches = null;
   loading = false; // <- Add this
 
   constructor(private backendservice: Backendservice, private router: Router){}
 
   private readonly eventBus = inject(EventBusService);
+
+  ngOnInit() {
+    // Retrieve the 'id' from the route
+    let uid = sessionStorage.getItem('unique_id')!
+    this.backendservice.getAllBatches(uid).subscribe({
+      next: (res: any) => {
+        this.batches = res
+        console.log(res)
+      },
+      error: (err: any) => {
+        console.error('Error retrieving batch', err);
+      }
+    });
+  }
 
   emaildata: EmailData = {
     name: '',
@@ -65,6 +80,10 @@ export class Dashboard {
         this.loading = false; // <- hide spinner if error
       }
     });
+  }
+
+  goToBatch(batchId: number) {
+    this.router.navigate(['/dashboard/result', sessionStorage.getItem('unique_id'), batchId]);
   }
 }
 

@@ -29,6 +29,10 @@ export class Backendservice {
     return this.http.get(`${environment.BACKEND_SERVER}/batches?id=${batchId}&uid=${uid}`);
   }
 
+  getAllBatches(uid: string){
+    return this.http.get(`${environment.BACKEND_SERVER}/batches?uid=${uid}`);
+  }
+
   login(user:any){
     return this.http.post(`${environment.BACKEND_SERVER}/users/`, user);
   }

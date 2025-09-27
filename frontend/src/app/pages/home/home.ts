@@ -2,6 +2,9 @@ import { AfterViewInit, Component} from '@angular/core';
 import { Navbar } from '../../navbar/navbar';
 import { Router } from '@angular/router';
 import { Backendservice } from '../../services/backendservice';
+import { environment } from '../../../environments/environment';
+
+declare const google: any;
 
 @Component({
   selector: 'app-home',
@@ -70,6 +73,24 @@ export class Home implements AfterViewInit{
     console.log("stored!!!")
     sessionStorage.setItem('unique_id', responsePayload.sub);
     console.log(sessionStorage.getItem('unique_id'))
+
+
+    // --- Initialize OAuth token client for Gmail ---
+    const tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: `${environment.CLIENT_ID}`,
+      scope: 'https://www.googleapis.com/auth/gmail.compose',
+      callback: (tokenResponse: any) => {
+        console.log('Gmail access token:', tokenResponse.access_token);
+
+        sessionStorage.setItem('access_token', tokenResponse.access_token);
+        // You can now call Gmail API with this access token
+      },
+    });
+
+    // Optional: request Gmail access immediately
+    tokenClient.requestAccessToken();
+
+    
 
 
     this.backendservice.login(user).subscribe({

@@ -49,25 +49,84 @@ export class Result implements OnInit {
 
 
   copyEmail(draft: any){
-  // Ensure content is an object
-  const content = typeof draft.content === 'string' ? JSON.parse(draft.content) : draft.content;
+    // Ensure content is an object
+    const content = typeof draft.content === 'string' ? JSON.parse(draft.content) : draft.content;
 
-    const emailText = `${content.greeting}
-    
-    ${content.paragraph1}
+const emailText = `${content.greeting}
 
-    ${content.paragraph2}
-    
-    ${content.paragraph3}
+${content.paragraph1}
 
+${content.paragraph2}
 
-    ${content.closing}
-      
-    ${this.user_full_name || ''}  
-    `;
+${content.paragraph3}
+
+${content.closing}
+
+${this.user_full_name || ''}`;
 
     navigator.clipboard.writeText(emailText).then(() => {
       alert('Email copied to clipboard!');
     });
   }
+
+async draftEmail(draft: any) {
+
+  let toEmail = draft.email
+  let subject = draft.content.subject
+  let accessToken = sessionStorage.getItem('access_token')
+  console.log(`this is my accesstoken ${accessToken}`)
+  // Parse content if needed
+  const content = typeof draft.content === 'string' ? JSON.parse(draft.content) : draft.content;
+
+  // Build email text
+const emailText = `${content.greeting}
+
+${content.paragraph1}
+
+${content.paragraph2}
+
+${content.paragraph3}
+
+
+${content.closing}
+
+${this.user_full_name || ''}`;
+
+  // Construct raw MIME message
+  const message =
+    `To: ${toEmail}\r\n` +
+    `Subject: ${subject}\r\n` +
+    `Content-Type: text/plain; charset="UTF-8"\r\n\r\n` +
+    `${emailText}`;
+
+  // Convert to Base64URL
+  const encodedMessage = btoa(message)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+
+  try {
+    const response = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/drafts', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: { raw: encodedMessage }
+      })
+    });
+
+    if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+
+    const data = await response.json();
+    console.log('Draft created:', data);
+    alert('Draft successfully created in Gmail!');
+  } catch (error) {
+    console.error('Failed to create draft:', error);
+    alert('Failed to create draft.');
+  }
+}
+
+
 }
