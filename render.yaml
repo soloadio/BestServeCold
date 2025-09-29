@@ -26,8 +26,6 @@ services:
       sync: false
     - key: CLIENT_ID
       sync: false
-   ports:
-    - 8000
 
  - type: web
    name: googlesearchserver
@@ -60,8 +58,6 @@ services:
       sync: false
     - key: GOOGLE_SEARCH_ENGINE_ID6
       sync: false
-   ports:
-    - 80
 
  - type: web
    name: frontend
@@ -90,5 +86,3 @@ services:
       sync: false
     - key: CLIENT_ID
       sync: false
-   ports:
-    - 4200
