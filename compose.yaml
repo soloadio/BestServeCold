@@ -1,50 +1,48 @@
-version: "3.9"
-
-services:
- frontend:
-  build: ./frontend
-  container_name: angular_frontend
-  ports:
-   - "4200:80"
-  networks:
-   - app_network
-  depends_on:
-   - backend
-
- backend:
-  build: ./backend
-  container_name: django_backend
-  ports:
-   - "8000:8000"
-  environment:
-   DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
-   DJANGO_DEBUG: ${DJANGO_DEBUG}
-   DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
-   DATABASE_URL: ${DATABASE_URL}
-  volumes:
-   - ./backend:/app # Useful for dev to see live changes
-  depends_on:
-   - db
-  networks:
-   - app_network
-
- db:
-  image: postgres:15
-  container_name: postgres_db
-  restart: always
-  environment:
-   POSTGRES_USER: ${POSTGRES_USER}
-   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-   POSTGRES_DB: ${POSTGRES_DB}
-  volumes:
-   - postgres_data:/var/lib/postgresql/data
-  ports:
-   - "5432:5432"
-  networks:
-   - app_network
-
-networks:
- app_network:
-
-volumes:
- postgres_data:
+services: 
+  backend: 
+    build: backend 
+    ports: 
+      - '8000:8000'
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${DEBUG}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+      - GEMINI_KEY=${GEMINI_KEY}
+      - SERPAPI_KEY=${SERPAPI_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - CSE_ID=${CSE_ID}
+      - GOOGLE_SEARCH_SERVER=${GOOGLE_SEARCH_SERVER}
+      - DATABASE_URL=${DATABASE_URL}
+      - CLIENT_ID=${CLIENT_ID}
+  googlesearchserver:
+    build: googlesearchserver
+    ports:
+      - '80:80'
+    environment:
+      - GOOGLE_API_KEY1=${GOOGLE_API_KEY1}
+      - GOOGLE_SEARCH_ENGINE_ID1=${GOOGLE_SEARCH_ENGINE_ID1}
+      - GOOGLE_API_KEY2=${GOOGLE_API_KEY2}
+      - GOOGLE_SEARCH_ENGINE_ID2=${GOOGLE_SEARCH_ENGINE_ID2}
+      - GOOGLE_API_KEY3=${GOOGLE_API_KEY3}
+      - GOOGLE_SEARCH_ENGINE_ID3=${GOOGLE_SEARCH_ENGINE_ID3}
+      - GOOGLE_API_KEY4=${GOOGLE_API_KEY4}
+      - GOOGLE_SEARCH_ENGINE_ID4=${GOOGLE_SEARCH_ENGINE_ID4}
+      - GOOGLE_API_KEY5=${GOOGLE_API_KEY5}
+      - GOOGLE_SEARCH_ENGINE_ID5=${GOOGLE_SEARCH_ENGINE_ID5}
+      - GOOGLE_API_KEY6=${GOOGLE_API_KEY6}
+      - GOOGLE_SEARCH_ENGINE_ID6=${GOOGLE_SEARCH_ENGINE_ID6}
+  frontend:
+    build: frontend
+    ports:
+      - '4200:4200'
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${DEBUG}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+      - GEMINI_KEY=${GEMINI_KEY}
+      - SERPAPI_KEY=${SERPAPI_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - CSE_ID=${CSE_ID}
+      - GOOGLE_SEARCH_SERVER=${GOOGLE_SEARCH_SERVER}
+      - DATABASE_URL=${DATABASE_URL}
+      - CLIENT_ID=${CLIENT_ID}        
