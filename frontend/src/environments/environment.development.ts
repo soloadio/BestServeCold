@@ -13,6 +13,6 @@ export const environment = {
     DATABASE_URL:"postgresql://bestservecolddb_user:XYDDJPiTDMkcXCWs9Vw80W2WMCCVw7ZO@dpg-d38riu6r433s73fq0fc0-a.oregon-postgres.render.com/bestservecolddb",
     CLIENT_ID:"812330712843-66r7b1cd1r6fp1q73jgjb8c90oit57g5.apps.googleusercontent.com",
 
-    GOOGLE_SEARCH_SERVER:"http://localhost:3000/search",
-    BACKEND_SERVER:"http://127.0.0.1:8000/"
+    GOOGLE_SEARCH_SERVER:"http://pcgoytgstw.a.pinggy.link/search",
+    BACKEND_SERVER:"http://pcgoytgstw.a.pinggy.link/"
 };

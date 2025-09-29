@@ -161,4 +161,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://bestservecold.com",
     "http://localhost:4200",
     "https://bestservecold.vercel.app",
+    "https://pcgoytgstw.a.pinggy.link",
+    "http://localhost:4200",
+    "http://192.168.40.6:4200",
+    "https://bestservecold.soloadio.com"
 ]
