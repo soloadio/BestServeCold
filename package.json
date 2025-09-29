@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "dotenv": "^17.2.2"
-  },
-  "devDependencies": {
-    "@types/node": "^24.6.0"
-  }
-}
