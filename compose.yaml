@@ -18,10 +18,13 @@ services:
       - dokploy-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.bestservecold.rule=Host('bestservecold.soloadio.com')"
+      - "traefik.http.routers.bestservecold.rule=Host(`bestservecold.soloadio.com`)"
       - "traefik.http.routers.bestservecold.entrypoints=websecure"
       - "traefik.http.routers.bestservecold.tls.certResolver=letsencrypt"
       - "traefik.http.services.bestservecold.loadbalancer.server.port=8000"
+networks:
+  dokploy-network:
+    external: true
   # googlesearchserver:
   #   build: googlesearchserver
   #   ports:
@@ -70,6 +73,3 @@ services:
   #     - "traefik.http.routers.<unique-name>.entrypoints=websecure"
   #     - "traefik.http.routers.<unique-name>.tls.certResolver=letsencrypt"
   #     - "traefik.http.services.<unique-name>.loadbalancer.server.port=4201"        
-networks:
-  dokploy-network:
-    external: true
