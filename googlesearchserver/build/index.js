@@ -140,7 +140,7 @@ app.post("/search", async (req, res) => {
 
 // Start server if not on Vercel
 if (!process.env.VERCEL) {
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 81;
   app.listen(port, () => console.log(`🚀 Server running at http://localhost:${port}`));
 }
 

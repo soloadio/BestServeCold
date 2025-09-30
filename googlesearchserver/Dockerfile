@@ -2,11 +2,10 @@ FROM node:lts AS development
 ARG NODE_ENV=production
 ENV NODE_ENV $NODE_ENV
 
-
 WORKDIR /src
 
-
-ARG PORT=80
+# Set PORT to 81
+ARG PORT=81
 ENV PORT $PORT
 EXPOSE $PORT 9229 9230
 
@@ -16,4 +15,5 @@ RUN npm ci
 
 COPY . /src
 
+# Ensure Node listens on $PORT
 CMD ["node", "build/index.js"]

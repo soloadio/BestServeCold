@@ -62,7 +62,6 @@ export class Home implements AfterViewInit{
     const user = {
       full_name: responsePayload.name,
       given_name: responsePayload.given_name,
-      family_name: responsePayload.family_name,
       unique_id: responsePayload.sub,
       email: responsePayload.email,
     };
@@ -94,11 +93,11 @@ export class Home implements AfterViewInit{
 
 
     this.backendservice.login(user).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         console.log('User created or already exists:', res);
         this.router.navigate(['/dashboard'], { relativeTo: this.router.routerState.root });
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error saving user:', err);
       }
     });
