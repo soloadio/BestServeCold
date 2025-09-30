@@ -10,53 +10,78 @@ import time
 class ScientificWebCrawler:
 
     def process(self, query: str):
-        # 1️⃣ Get up to 10 URLs from Google search
-        urls = self.get_allrelativeurls2(query)
-        print(f"Found {len(urls)} URLs: {', '.join(urls)}")
+        start_time = time.time()
+        try:
+            # 1️⃣ Get up to 10 URLs from Google search
+            urls = self.get_allrelativeurls2(query)
+            print(f"[INFO] Found {len(urls)} URLs: {', '.join(urls)}")
 
-        # 2️⃣ Prepare the default result
-        noresult = {'url': None, 'data': None}
+            # 2️⃣ Prepare the default result
+            noresult = {'url': None, 'data': None}
 
-        # 3️⃣ Open a single browser instance
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            try:
-                # 4️⃣ Loop over each URL in sequence
-                for url in urls:
-                    page = browser.new_page()
-                    try:
-                        data = self._scrape_page(page, url)
-                        if data:
-                            return {'url': url, 'data': data}  # Return first valid result
-                    except Exception as e:
-                        print(f"Failed to get conclusion for {url}: {e}")
-                    finally:
-                        # ALWAYS close the page
-                        try:
-                            page.close()
-                        except Exception:
-                            pass
-            finally:
-                # 5️⃣ Close browser at the end
+            # 3️⃣ Open a single browser instance
+            with sync_playwright() as p:
+                print("[INFO] Launching browser...")
+                browser = p.chromium.launch(headless=True)
+                print("[INFO] Browser launched")
+
                 try:
-                    browser.close()
-                except Exception:
-                    pass
+                    # 4️⃣ Loop over each URL
+                    for idx, url in enumerate(urls, start=1):
+                        print(f"\n[INFO] Processing URL {idx}/{len(urls)}: {url}")
+                        page = browser.new_page()
+                        print(f"[INFO] Page opened for {url}")
+                        try:
+                            start_page = time.time()
+                            data = self._scrape_page(page, url)
+                            end_page = time.time()
+                            print(f"[INFO] Page processed in {end_page - start_page:.2f}s for {url}")
+                            if data:
+                                print(f"[INFO] Valid data found for {url}, returning result")
+                                return {'url': url, 'data': data}
+                        except Exception as e:
+                            print(f"[ERROR] Failed to scrape {url}: {e}")
+                        finally:
+                            try:
+                                page.close()
+                                print(f"[INFO] Page closed for {url}")
+                            except Exception as e:
+                                print(f"[WARN] Error closing page for {url}: {e}")
 
-        # 6️⃣ Return default if nothing found
-        return noresult
+                except Exception as e:
+                    print(f"[ERROR] Error during browser processing: {e}")
+                finally:
+                    try:
+                        browser.close()
+                        print("[INFO] Browser closed")
+                    except Exception as e:
+                        print(f"[WARN] Error closing browser: {e}")
+
+        except Exception as e:
+            print(f"[ERROR] Error in process function: {e}")
+
+        total_time = time.time() - start_time
+        print(f"[INFO] Process finished in {total_time:.2f}s, no valid research data found")
+        return {'url': None, 'data': None}
 
 
     def _scrape_page(self, page, url: str, filter: list[str] = ["conclu", "discussion"]):
         final_result = ""
         try:
-            page.goto(url, timeout=30000)  # 30s timeout for slow pages
-            html_content = page.content()   # get the HTML of the page
-            print(f"Heres the html content: {html_content}")
+            print(f"[SCRAPE] Navigating to {url}")
+            start_nav = time.time()
+            page.goto(url, timeout=30000)
+            end_nav = time.time()
+            print(f"[SCRAPE] Navigation done in {end_nav - start_nav:.2f}s")
+
+            html_content = page.content()
+            print(f"[SCRAPE] Page HTML length: {len(html_content)} characters")
+
             page.wait_for_selector('section', timeout=10000)
             sections = page.query_selector_all('section')
+            print(f"[SCRAPE] Found {len(sections)} <section> elements")
 
-            for section in sections:
+            for idx, section in enumerate(sections, start=1):
                 header = section.query_selector('h2')
                 if header:
                     header_text = header.inner_text().lower()
@@ -64,14 +89,17 @@ class ScientificWebCrawler:
                         if word in header_text:
                             paragraphs = section.query_selector_all('p, div')
                             final_result = " ".join([p.inner_text().strip() for p in paragraphs])
-                            print(f"{word} section found in {url}")
-                            return final_result  # Stop at first valid section
-        except PlaywrightTimeoutError:
-            print(f"Page load timeout for: {url}")
-        except Exception as e:
-            print(f"Error scraping {url}: {e}")
+                            print(f"[SCRAPE] {word} section found in section {idx} of {url}")
+                            return final_result
 
-        return final_result
+        except PlaywrightTimeoutError:
+            print(f"[SCRAPE] Page load timeout for: {url}")
+        except Exception as e:
+            print(f"[SCRAPE] Error scraping {url}: {e}")
+        finally:
+            print(f"[SCRAPE] Done with {url}")
+
+        return final_result    
     def __init__(self):
         self.scraper = cloudscraper.create_scraper()
         self.page_load_delay = 2
