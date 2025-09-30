@@ -93,6 +93,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - CLIENT_ID=${CLIENT_ID}
     restart: always
+    mem_limit: 2g
     networks:
       - dokploy-network
     labels:
@@ -137,7 +138,6 @@ services:
       - DEBUG=${DEBUG}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS}
       - GEMINI_KEY=${GEMINI_KEY}
-      - SERPAPI_KEY=${SERPAPI_KEY}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
       - CSE_ID=${CSE_ID}
       - GOOGLE_SEARCH_SERVER=${GOOGLE_SEARCH_SERVER}
