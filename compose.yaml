@@ -2,7 +2,7 @@ services:
   backend: 
     build: backend 
     ports: 
-      - 8001
+      - 3000
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG}
@@ -21,7 +21,7 @@ services:
       - "traefik.http.routers.bestservecold.rule=Host(`bestservecold.soloadio.com`)"
       - "traefik.http.routers.bestservecold.entrypoints=websecure"
       - "traefik.http.routers.bestservecold.tls.certResolver=letsencrypt"
-      - "traefik.http.services.bestservecold.loadbalancer.server.port=8001"
+      - "traefik.http.services.bestservecold.loadbalancer.server.port=3000"
   # googlesearchserver:
   #   build: googlesearchserver
   #   ports:
