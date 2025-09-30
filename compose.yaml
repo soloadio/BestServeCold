@@ -1,8 +1,87 @@
+# services: 
+#   backend: 
+#     build: backend 
+#     ports: 
+#       - 8000:8000
+#     environment:
+#       - SECRET_KEY=${SECRET_KEY}
+#       - DEBUG=${DEBUG}
+#       - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+#       - GEMINI_KEY=${GEMINI_KEY}
+#       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+#       - CSE_ID=${CSE_ID}
+#       - GOOGLE_SEARCH_SERVER=${GOOGLE_SEARCH_SERVER}
+#       - DATABASE_URL=${DATABASE_URL}
+#       - CLIENT_ID=${CLIENT_ID}
+#     restart: always
+#     networks:
+#       - dokploy-network
+#     labels:
+#       - "traefik.enable=true"
+#       - "traefik.http.routers.bestservecold-backend.rule=Host(`bestservecold.soloadio.com`) && PathPrefix(`/api`)"
+#       - "traefik.http.routers.bestservecold-backend.entrypoints=websecure"
+#       - "traefik.http.routers.bestservecold-backend.tls.certresolver=letsencrypt"
+#       - "traefik.http.services.bestservecold-backend.loadbalancer.server.port=8000"
+#       # Strip the /api prefix before forwarding to backend
+#       - "traefik.http.middlewares.bestservecold-backend-stripprefix.stripprefix.prefixes=/api"
+#       - "traefik.http.routers.bestservecold-backend.middlewares=bestservecold-backend-stripprefix"
+#   googlesearchserver:
+#     build: googlesearchserver
+#     ports:
+#       - 81:81
+#     environment:
+#       - GOOGLE_API_KEY1=${GOOGLE_API_KEY1}
+#       - GOOGLE_SEARCH_ENGINE_ID1=${GOOGLE_SEARCH_ENGINE_ID1}
+#       - GOOGLE_API_KEY2=${GOOGLE_API_KEY2}
+#       - GOOGLE_SEARCH_ENGINE_ID2=${GOOGLE_SEARCH_ENGINE_ID2}
+#       - GOOGLE_API_KEY3=${GOOGLE_API_KEY3}
+#       - GOOGLE_SEARCH_ENGINE_ID3=${GOOGLE_SEARCH_ENGINE_ID3}
+#       - GOOGLE_API_KEY4=${GOOGLE_API_KEY4}
+#       - GOOGLE_SEARCH_ENGINE_ID4=${GOOGLE_SEARCH_ENGINE_ID4}
+#       - GOOGLE_API_KEY5=${GOOGLE_API_KEY5}
+#       - GOOGLE_SEARCH_ENGINE_ID5=${GOOGLE_SEARCH_ENGINE_ID5}
+#       - GOOGLE_API_KEY6=${GOOGLE_API_KEY6}
+#       - GOOGLE_SEARCH_ENGINE_ID6=${GOOGLE_SEARCH_ENGINE_ID6}
+#     networks:
+#       - dokploy-network
+#     labels:
+#       - "traefik.enable=true"
+#       - "traefik.http.routers.bestservecold-googlesearchserver.rule=Host(`bestservecold.soloadio.com`) && PathPrefix(`/googlesearchserver`)"
+#       - "traefik.http.routers.bestservecold-googlesearchserver.entrypoints=websecure"
+#       - "traefik.http.routers.bestservecold-googlesearchserver.tls.certResolver=letsencrypt"
+#       - "traefik.http.services.bestservecold-googlesearchserver.loadbalancer.server.port=81"
+#       # Strip the /googlesearchserver prefix before forwarding to backend
+#       - "traefik.http.middlewares.bestservecold-googlesearchserver-stripprefix.stripprefix.prefixes=/googlesearchserver"
+#       - "traefik.http.routers.bestservecold-googlesearchserver.middlewares=bestservecold-googlesearchserver-stripprefix"
+#   frontend:
+#     build: frontend
+#     ports:
+#       - 4201:4201
+#     environment:
+#       - SECRET_KEY=${SECRET_KEY}
+#       - DEBUG=${DEBUG}
+#       - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+#       - GEMINI_KEY=${GEMINI_KEY}
+#       - SERPAPI_KEY=${SERPAPI_KEY}
+#       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+#       - CSE_ID=${CSE_ID}
+#       - GOOGLE_SEARCH_SERVER=${GOOGLE_SEARCH_SERVER}
+#       - DATABASE_URL=${DATABASE_URL}
+#       - CLIENT_ID=${CLIENT_ID}
+#     networks:
+#       - dokploy-network
+#     labels:
+#       - "traefik.enable=true"
+#       - "traefik.http.routers.bestservecold-frontend.rule=Host(`bestservecold.soloadio.com`)"
+#       - "traefik.http.routers.bestservecold-frontend.entrypoints=websecure"
+#       - "traefik.http.routers.bestservecold-frontend.tls.certResolver=letsencrypt"
+#       - "traefik.http.services.bestservecold-frontend.loadbalancer.server.port=4201"        
+# networks:
+#   dokploy-network:
+#     external: true
 services: 
   backend: 
     build: backend 
-    ports: 
-      - 8000:8000
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG}
@@ -18,58 +97,61 @@ services:
       - dokploy-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.bestservecold.rule=Host(`bestservecold.soloadio.com`)"
-      - "traefik.http.routers.bestservecold.entrypoints=websecure"
-      - "traefik.http.routers.bestservecold.tls.certResolver=letsencrypt"
-      - "traefik.http.services.bestservecold.loadbalancer.server.port=8000"
+      - "traefik.http.routers.bestservecold-backend.rule=Host(`bestservecold.soloadio.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.bestservecold-backend.entrypoints=websecure"
+      - "traefik.http.routers.bestservecold-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.bestservecold-backend.loadbalancer.server.port=8000"
+      - "traefik.http.middlewares.bestservecold-backend-stripprefix.stripprefix.prefixes=/api"
+      - "traefik.http.routers.bestservecold-backend.middlewares=bestservecold-backend-stripprefix"
+
+  googlesearchserver:
+    build: googlesearchserver
+    environment:
+      - GOOGLE_API_KEY1=${GOOGLE_API_KEY1}
+      - GOOGLE_SEARCH_ENGINE_ID1=${GOOGLE_SEARCH_ENGINE_ID1}
+      - GOOGLE_API_KEY2=${GOOGLE_API_KEY2}
+      - GOOGLE_SEARCH_ENGINE_ID2=${GOOGLE_SEARCH_ENGINE_ID2}
+      - GOOGLE_API_KEY3=${GOOGLE_API_KEY3}
+      - GOOGLE_SEARCH_ENGINE_ID3=${GOOGLE_SEARCH_ENGINE_ID3}
+      - GOOGLE_API_KEY4=${GOOGLE_API_KEY4}
+      - GOOGLE_SEARCH_ENGINE_ID4=${GOOGLE_SEARCH_ENGINE_ID4}
+      - GOOGLE_API_KEY5=${GOOGLE_API_KEY5}
+      - GOOGLE_SEARCH_ENGINE_ID5=${GOOGLE_SEARCH_ENGINE_ID5}
+      - GOOGLE_API_KEY6=${GOOGLE_API_KEY6}
+      - GOOGLE_SEARCH_ENGINE_ID6=${GOOGLE_SEARCH_ENGINE_ID6}
+    networks:
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bestservecold-googlesearchserver.rule=Host(`bestservecold.soloadio.com`) && PathPrefix(`/googlesearchserver`)"
+      - "traefik.http.routers.bestservecold-googlesearchserver.entrypoints=websecure"
+      - "traefik.http.routers.bestservecold-googlesearchserver.tls.certresolver=letsencrypt"
+      - "traefik.http.services.bestservecold-googlesearchserver.loadbalancer.server.port=81"
+      - "traefik.http.middlewares.bestservecold-googlesearchserver-stripprefix.stripprefix.prefixes=/googlesearchserver"
+      - "traefik.http.routers.bestservecold-googlesearchserver.middlewares=bestservecold-googlesearchserver-stripprefix"
+
+  frontend:
+    build: frontend
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${DEBUG}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+      - GEMINI_KEY=${GEMINI_KEY}
+      - SERPAPI_KEY=${SERPAPI_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - CSE_ID=${CSE_ID}
+      - GOOGLE_SEARCH_SERVER=${GOOGLE_SEARCH_SERVER}
+      - DATABASE_URL=${DATABASE_URL}
+      - CLIENT_ID=${CLIENT_ID}
+    networks:
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bestservecold-frontend.rule=Host(`bestservecold.soloadio.com`) && PathPrefix(`/`)"
+      - "traefik.http.routers.bestservecold-frontend.entrypoints=websecure"
+      - "traefik.http.routers.bestservecold-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.bestservecold-frontend.loadbalancer.server.port=4201"        
+
 networks:
   dokploy-network:
     external: true
-  # googlesearchserver:
-  #   build: googlesearchserver
-  #   ports:
-  #     - '81'
-  #   environment:
-  #     - GOOGLE_API_KEY1=${GOOGLE_API_KEY1}
-  #     - GOOGLE_SEARCH_ENGINE_ID1=${GOOGLE_SEARCH_ENGINE_ID1}
-  #     - GOOGLE_API_KEY2=${GOOGLE_API_KEY2}
-  #     - GOOGLE_SEARCH_ENGINE_ID2=${GOOGLE_SEARCH_ENGINE_ID2}
-  #     - GOOGLE_API_KEY3=${GOOGLE_API_KEY3}
-  #     - GOOGLE_SEARCH_ENGINE_ID3=${GOOGLE_SEARCH_ENGINE_ID3}
-  #     - GOOGLE_API_KEY4=${GOOGLE_API_KEY4}
-  #     - GOOGLE_SEARCH_ENGINE_ID4=${GOOGLE_SEARCH_ENGINE_ID4}
-  #     - GOOGLE_API_KEY5=${GOOGLE_API_KEY5}
-  #     - GOOGLE_SEARCH_ENGINE_ID5=${GOOGLE_SEARCH_ENGINE_ID5}
-  #     - GOOGLE_API_KEY6=${GOOGLE_API_KEY6}
-  #     - GOOGLE_SEARCH_ENGINE_ID6=${GOOGLE_SEARCH_ENGINE_ID6}
-  #   networks:
-  #     - dokploy-network
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.<unique-name>.rule=Host(`admin.soloadio.com`)"
-  #     - "traefik.http.routers.<unique-name>.entrypoints=websecure"
-  #     - "traefik.http.routers.<unique-name>.tls.certResolver=letsencrypt"
-  #     - "traefik.http.services.<unique-name>.loadbalancer.server.port=81"
-  # frontend:
-  #   build: frontend
-  #   ports:
-  #     - '4201'
-  #   environment:
-  #     - SECRET_KEY=${SECRET_KEY}
-  #     - DEBUG=${DEBUG}
-  #     - ALLOWED_HOSTS=${ALLOWED_HOSTS}
-  #     - GEMINI_KEY=${GEMINI_KEY}
-  #     - SERPAPI_KEY=${SERPAPI_KEY}
-  #     - GOOGLE_API_KEY=${GOOGLE_API_KEY}
-  #     - CSE_ID=${CSE_ID}
-  #     - GOOGLE_SEARCH_SERVER=${GOOGLE_SEARCH_SERVER}
-  #     - DATABASE_URL=${DATABASE_URL}
-  #     - CLIENT_ID=${CLIENT_ID}
-  #   networks:
-  #     - dokploy-network
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.<unique-name>.rule=Host(`admin.soloadio.com`)"
-  #     - "traefik.http.routers.<unique-name>.entrypoints=websecure"
-  #     - "traefik.http.routers.<unique-name>.tls.certResolver=letsencrypt"
-  #     - "traefik.http.services.<unique-name>.loadbalancer.server.port=4201"        
