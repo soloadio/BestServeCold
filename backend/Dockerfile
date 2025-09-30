@@ -86,4 +86,4 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 8000
 
 # Start the application using Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "BestServeCold.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "1", "BestServeCold.wsgi:application"]
