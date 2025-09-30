@@ -1,4 +1,3 @@
-from serpapi import GoogleSearch
 import os
 import cloudscraper
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError

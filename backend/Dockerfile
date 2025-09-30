@@ -53,75 +53,52 @@
 # # Start the application using Gunicorn
 # CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "BestServeCold.wsgi:application"]
 
+# escape=`
 
-# ----------------------
+# Use Windows Python base image
 # Stage 1: Builder
-# ----------------------
-FROM python:3.13-slim AS builder
-
-# Install system dependencies required by PlayKit/Chromium/WebKit
-RUN apt-get update && apt-get install -y \
-    wget curl ca-certificates gnupg \
-    libglib2.0-0 libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
-    libxcomposite1 libxdamage1 libxrandr2 libgbm1 libpango-1.0-0 libgtk-3-0 \
-    libasound2 fonts-liberation libx11-xcb1 libxshmfence1 libxcb-dri3-0 libdrm2 \
-    libwoff1 libharfbuzz0b libjpeg62-turbo libpng16-16 libsqlite3-0 \
-    && rm -rf /var/lib/apt/lists/*
+FROM mcr.microsoft.com/windows/python:3.13-windowsservercore-ltsc2022 AS builder
 
 # Set working directory
-RUN mkdir /app
-WORKDIR /app
+WORKDIR C:/app
 
-# Upgrade pip and install Python dependencies
-RUN pip install --upgrade pip
-COPY requirements.txt /app/
+# Upgrade pip
+RUN python -m pip install --upgrade pip
+
+# Copy requirements and install dependencies
+COPY requirements.txt C:/app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy Django project
-COPY . /app/
+# Copy the rest of the app
+COPY . C:/app/
 
-# Install Playwright browsers (Chromium + WebKit + Firefox)
-RUN python -m playwright install
+# Install Playwright browsers (Chromium, WebKit, Firefox)
+RUN python -m playwright install --with-deps
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-# ----------------------
 # Stage 2: Final image
-# ----------------------
-FROM python:3.13-slim
-
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y \
-    libglib2.0-0 libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
-    libxcomposite1 libxdamage1 libxrandr2 libgbm1 libpango-1.0-0 libgtk-3-0 \
-    libasound2 fonts-liberation libx11-xcb1 libxshmfence1 libxcb-dri3-0 libdrm2 \
-    libwoff1 libharfbuzz0b libjpeg62-turbo libpng16-16 libsqlite3-0 \
-    && rm -rf /var/lib/apt/lists/*
+FROM mcr.microsoft.com/windows/python:3.13-windowsservercore-ltsc2022
 
 # Create non-root user
-RUN useradd -m -r appuser && mkdir /app && chown -R appuser /app
-WORKDIR /app
+RUN net user /add appuser && \
+    mkdir C:/app && \
+    icacls C:/app /grant appuser:F /T
 
-# Copy Python dependencies
-COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
-COPY --from=builder /usr/local/bin/ /usr/local/bin/
+WORKDIR C:/app
 
-# Copy Playwright browsers (Chromium + WebKit + Firefox)
-COPY --from=builder /root/.cache/ms-playwright/ /home/appuser/.cache/ms-playwright/
-
-# Copy application code
-COPY --chown=appuser:appuser . .
+# Copy installed Python packages and Playwright binaries from builder
+COPY --from=builder C:/Python313/Lib/site-packages/ C:/Python313/Lib/site-packages/
+COPY --from=builder C:/Python313/Scripts/ C:/Python313/Scripts/
+COPY --from=builder C:/app/ C:/app/
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Switch to non-root user
+# Switch to non-admin user
 USER appuser
 
 # Expose Django port
 EXPOSE 8000
 
-# Start the Django app
+# Start Gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "BestServeCold.wsgi:application"]
