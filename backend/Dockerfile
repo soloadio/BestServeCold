@@ -57,48 +57,29 @@
 
 # Use Windows Python base image
 # Stage 1: Builder
-FROM mcr.microsoft.com/windows/python:3.13-windowsservercore-ltsc2022 AS builder
+# Use Playwright noble image as base
+FROM mcr.microsoft.com/playwright:v1.55.0-noble
+
+# Create a non-root user for security
+RUN useradd -m appuser
+USER appuser
 
 # Set working directory
-WORKDIR C:/app
+WORKDIR /app
 
-# Upgrade pip
-RUN python -m pip install --upgrade pip
+# Copy Python requirements and install
+COPY requirements.txt /app/
+RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
-# Copy requirements and install dependencies
-COPY requirements.txt C:/app/
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the rest of the app
-COPY . C:/app/
-
-# Install Playwright browsers (Chromium, WebKit, Firefox)
-RUN python -m playwright install --with-deps
-
-# Stage 2: Final image
-FROM mcr.microsoft.com/windows/python:3.13-windowsservercore-ltsc2022
-
-# Create non-root user
-RUN net user /add appuser && \
-    mkdir C:/app && \
-    icacls C:/app /grant appuser:F /T
-
-WORKDIR C:/app
-
-# Copy installed Python packages and Playwright binaries from builder
-COPY --from=builder C:/Python313/Lib/site-packages/ C:/Python313/Lib/site-packages/
-COPY --from=builder C:/Python313/Scripts/ C:/Python313/Scripts/
-COPY --from=builder C:/app/ C:/app/
-
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-# Switch to non-admin user
-USER appuser
+# Copy the rest of your Django project
+COPY --chown=appuser:appuser . /app/
 
 # Expose Django port
 EXPOSE 8000
 
-# Start Gunicorn
+# Set environment variables for Python
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Start Django with Gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "BestServeCold.wsgi:application"]
