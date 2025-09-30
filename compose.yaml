@@ -2,7 +2,7 @@ services:
   backend: 
     build: backend 
     ports: 
-      - '8000:8000'
+      - '8001'
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG}
@@ -14,10 +14,18 @@ services:
       - GOOGLE_SEARCH_SERVER=${GOOGLE_SEARCH_SERVER}
       - DATABASE_URL=${DATABASE_URL}
       - CLIENT_ID=${CLIENT_ID}
+    networks:
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.<unique-name>.rule=Host(`admin.soloadio.com`)"
+      - "traefik.http.routers.<unique-name>.entrypoints=websecure"
+      - "traefik.http.routers.<unique-name>.tls.certResolver=letsencrypt"
+      - "traefik.http.services.<unique-name>.loadbalancer.server.port=8001"
   googlesearchserver:
     build: googlesearchserver
     ports:
-      - '80:80'
+      - '81'
     environment:
       - GOOGLE_API_KEY1=${GOOGLE_API_KEY1}
       - GOOGLE_SEARCH_ENGINE_ID1=${GOOGLE_SEARCH_ENGINE_ID1}
@@ -31,10 +39,18 @@ services:
       - GOOGLE_SEARCH_ENGINE_ID5=${GOOGLE_SEARCH_ENGINE_ID5}
       - GOOGLE_API_KEY6=${GOOGLE_API_KEY6}
       - GOOGLE_SEARCH_ENGINE_ID6=${GOOGLE_SEARCH_ENGINE_ID6}
+    networks:
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.<unique-name>.rule=Host(`admin.soloadio.com`)"
+      - "traefik.http.routers.<unique-name>.entrypoints=websecure"
+      - "traefik.http.routers.<unique-name>.tls.certResolver=letsencrypt"
+      - "traefik.http.services.<unique-name>.loadbalancer.server.port=81"
   frontend:
     build: frontend
     ports:
-      - '4200:4200'
+      - '4201'
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG}
@@ -45,4 +61,15 @@ services:
       - CSE_ID=${CSE_ID}
       - GOOGLE_SEARCH_SERVER=${GOOGLE_SEARCH_SERVER}
       - DATABASE_URL=${DATABASE_URL}
-      - CLIENT_ID=${CLIENT_ID}        
+      - CLIENT_ID=${CLIENT_ID}
+    networks:
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.<unique-name>.rule=Host(`admin.soloadio.com`)"
+      - "traefik.http.routers.<unique-name>.entrypoints=websecure"
+      - "traefik.http.routers.<unique-name>.tls.certResolver=letsencrypt"
+      - "traefik.http.services.<unique-name>.loadbalancer.server.port=4201"        
+networks:
+  dokploy-network:
+    external: true
