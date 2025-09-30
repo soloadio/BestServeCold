@@ -2,40 +2,48 @@ import os
 import cloudscraper
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 import requests
-from playwright_stealth import Stealth
-from .multitasker import Multitasker
+# from playwright_stealth import Stealth
+# from .multitasker import Multitasker
 
 import time
+import resource
 
 class ScientificWebCrawler:
 
+    def _log_memory(self, label=""):
+        # Log current memory usage in MB
+        usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        print(f"[MEMORY] {label} | Memory usage: {usage / 1024:.2f} MB")  # ru_maxrss in KB
+
     def process(self, query: str):
         start_time = time.time()
+        self._log_memory("Start process")
+
         try:
-            # 1️⃣ Get up to 10 URLs from Google search
             urls = self.get_allrelativeurls2(query)
             print(f"[INFO] Found {len(urls)} URLs: {', '.join(urls)}")
-
-            # 2️⃣ Prepare the default result
             noresult = {'url': None, 'data': None}
 
-            # 3️⃣ Open a single browser instance
             with sync_playwright() as p:
                 print("[INFO] Launching browser...")
                 browser = p.chromium.launch(headless=True)
                 print("[INFO] Browser launched")
+                self._log_memory("Browser launched")
 
                 try:
-                    # 4️⃣ Loop over each URL
                     for idx, url in enumerate(urls, start=1):
                         print(f"\n[INFO] Processing URL {idx}/{len(urls)}: {url}")
                         page = browser.new_page()
                         print(f"[INFO] Page opened for {url}")
+                        self._log_memory(f"Opened page {idx}")
+
                         try:
                             start_page = time.time()
                             data = self._scrape_page(page, url)
                             end_page = time.time()
                             print(f"[INFO] Page processed in {end_page - start_page:.2f}s for {url}")
+                            self._log_memory(f"After processing page {idx}")
+
                             if data:
                                 print(f"[INFO] Valid data found for {url}, returning result")
                                 return {'url': url, 'data': data}
@@ -45,6 +53,7 @@ class ScientificWebCrawler:
                             try:
                                 page.close()
                                 print(f"[INFO] Page closed for {url}")
+                                self._log_memory(f"After closing page {idx}")
                             except Exception as e:
                                 print(f"[WARN] Error closing page for {url}: {e}")
 
@@ -54,6 +63,7 @@ class ScientificWebCrawler:
                     try:
                         browser.close()
                         print("[INFO] Browser closed")
+                        self._log_memory("After closing browser")
                     except Exception as e:
                         print(f"[WARN] Error closing browser: {e}")
 
@@ -62,8 +72,8 @@ class ScientificWebCrawler:
 
         total_time = time.time() - start_time
         print(f"[INFO] Process finished in {total_time:.2f}s, no valid research data found")
+        self._log_memory("End process")
         return {'url': None, 'data': None}
-
 
     def _scrape_page(self, page, url: str, filter: list[str] = ["conclu", "discussion"]):
         final_result = ""
@@ -99,7 +109,7 @@ class ScientificWebCrawler:
         finally:
             print(f"[SCRAPE] Done with {url}")
 
-        return final_result    
+        return final_result
     def __init__(self):
         self.scraper = cloudscraper.create_scraper()
         self.page_load_delay = 2
