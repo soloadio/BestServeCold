@@ -22,12 +22,7 @@ class ScientificWebCrawler:
             # 3️⃣ Open a single browser instance
             with sync_playwright() as p:
                 print("[INFO] Launching browser...")
-                browser = p.chromium.launch(headless=True,     args=[
-        "--no-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--single-process"
-    ])
+                browser = p.chromium.launch(headless=True)
                 print("[INFO] Browser launched")
 
                 try:

@@ -1,6 +1,0 @@
-2025/09/21-18:01:24.730 6480 Creating DB F:\Programs\Applications\Git\BestServeCold\backend\user_data\Default\IndexedDB\https_onlinelibrary.wiley.com_0.indexeddb.leveldb since it was missing.
-2025/09/21-18:01:24.796 6480 Reusing MANIFEST F:\Programs\Applications\Git\BestServeCold\backend\user_data\Default\IndexedDB\https_onlinelibrary.wiley.com_0.indexeddb.leveldb/MANIFEST-000001
-2025/09/21-18:01:25.057 6480 Level-0 table #5: started
-2025/09/21-18:01:25.159 6480 Level-0 table #5: 1427 bytes OK
-2025/09/21-18:01:25.232 6480 Delete type=0 #3
-2025/09/21-18:01:25.247 6480 Manual compaction at level-0 from '\x00\x01\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x02\x00\x00\x00' @ 0 : 0; will stop at (end)
