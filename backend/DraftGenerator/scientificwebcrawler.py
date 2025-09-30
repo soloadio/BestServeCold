@@ -265,35 +265,35 @@ class ScientificWebCrawler:
         return filtered_urls
     
 
-    # def _filterurls(self, urls: list[str], filter: list[str], exclude: list[str]):
-    #     """
-    #     Returns a list of filtered urls based on filter and exclude.
+    def _filterurls(self, urls: list[str], filter: list[str], exclude: list[str]):
+        """
+        Returns a list of filtered urls based on filter and exclude.
         
-    #     Args:
-    #         urls (str): The list of urls to be filtered.
-    #         filter (list[str]): A list of possible strings to filter for in the URLs.
-    #         exclude (list[str]): A list of possible strings in URL to be excluded from.
+        Args:
+            urls (str): The list of urls to be filtered.
+            filter (list[str]): A list of possible strings to filter for in the URLs.
+            exclude (list[str]): A list of possible strings in URL to be excluded from.
 
-    #     Returns:
-    #         filtered_url (list[str]): A filtered list of urls.
-    #     """
-    #     filtered_url = []
-    #     if not filter and not exclude:
-    #         return urls
+        Returns:
+            filtered_url (list[str]): A filtered list of urls.
+        """
+        filtered_url = []
+        if not filter and not exclude:
+            return urls
         
-    #     for url in urls:
-    #         # Filters each of the links, removing any link that contains an exclusion and doesn't contain the filter
+        for url in urls:
+            # Filters each of the links, removing any link that contains an exclusion and doesn't contain the filter
 
-    #         for exclusion in exclude:
-    #             if exclusion in url:
-    #                 break
-    #             else:
-    #                 for word in filter:
-    #                     if word in url:
+            for exclusion in exclude:
+                if exclusion in url:
+                    break
+                else:
+                    for word in filter:
+                        if word in url:
 
-    #                         filtered_url.append(word)
+                            filtered_url.append(word)
         
-    #     return filtered_url
+        return filtered_url
 
 
     # def process(self, query: str):
