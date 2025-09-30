@@ -58,28 +58,32 @@
 # Use Windows Python base image
 # Stage 1: Builder
 # Use Playwright noble image as base
-FROM mcr.microsoft.com/playwright:v1.55.0-noble
-
-# Create a non-root user for security
-RUN useradd -m appuser
-USER appuser
+# Use Microsoft Playwright noble image as base
+FROM mcr.microsoft.com/playwright/python:v1.54.0-noble
 
 # Set working directory
 WORKDIR /app
 
-# Copy Python requirements and install
+# Create non-root user
+RUN useradd -m -r appuser && chown -R appuser /app
+
+# Copy Python dependencies and install
 COPY requirements.txt /app/
 RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of your Django project
-COPY --chown=appuser:appuser . /app/
+# Copy the Django project code
+COPY . /app/
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Set environment variables to optimize Python
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Expose Django port
 EXPOSE 8000
 
-# Set environment variables for Python
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-# Start Django with Gunicorn
+# Start the application using Gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "BestServeCold.wsgi:application"]
