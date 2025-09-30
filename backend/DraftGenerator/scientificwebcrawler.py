@@ -70,42 +70,42 @@ class ScientificWebCrawler:
     #     self.max_retries = 3
     #     self.base_url = os.environ.get("GOOGLE_SEARCH_SERVER")
     
-    # def get_websites(self, query: str, num_results: int = 1):
-    #     """
-    #     Returns the top 'num_results' search result URLs for a query using the Google Custom Search API
-    #     via the Node.js MCP server.
+    def get_websites(self, query: str, num_results: int = 1):
+        """
+        Returns the top 'num_results' search result URLs for a query using the Google Custom Search API
+        via the Node.js MCP server.
 
-    #     Args:
-    #         query (str): The string to search in Google
-    #         num_results (int): The number of results to return
+        Args:
+            query (str): The string to search in Google
+            num_results (int): The number of results to return
         
-    #     Returns:
-    #         list (str): A list of URLs
-    #     """
-    #     if not query or not query.strip():
-    #         raise ValueError("Query must be a non-empty string.")
+        Returns:
+            list (str): A list of URLs
+        """
+        if not query or not query.strip():
+            raise ValueError("Query must be a non-empty string.")
 
-    #     payload = {
-    #         "query": query,
-    #         "numResults": num_results
-    #     }
+        payload = {
+            "query": query,
+            "numResults": num_results
+        }
 
-    #     try:
-    #         response = requests.post(self.base_url, json=payload, timeout=10)
+        try:
+            response = requests.post(self.base_url, json=payload, timeout=10)
 
-    #         # Check for HTTP errors
-    #         response.raise_for_status()
+            # Check for HTTP errors
+            response.raise_for_status()
 
-    #         data = response.json()
+            data = response.json()
 
-    #         # Extract only the URLs
-    #         urls = [item['url'] for item in data['results']]
+            # Extract only the URLs
+            urls = [item['url'] for item in data['results']]
 
-    #         return urls
+            return urls
 
-    #     except requests.exceptions.RequestException as e:
-    #         print(f"❌ Error calling search API: {e}")
-    #         return []
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Error calling search API: {e}")
+            return []
 
     # def worker(self, url):
     #     """
