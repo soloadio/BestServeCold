@@ -1,8 +1,10 @@
-services: 
-  backend: 
-    build: backend 
-    ports: 
-      - '8001'
+version: '3.9'
+
+services:
+  backend:
+    build: backend
+    ports:
+      - '8001:8001'  # HOST:CONTAINER
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG}
@@ -18,14 +20,15 @@ services:
       - dokploy-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.<unique-name>.rule=Host(`admin.soloadio.com`)"
-      - "traefik.http.routers.<unique-name>.entrypoints=websecure"
-      - "traefik.http.routers.<unique-name>.tls.certResolver=letsencrypt"
-      - "traefik.http.services.<unique-name>.loadbalancer.server.port=8001"
+      - "traefik.http.routers.backend.rule=Host(`admin.soloadio.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.backend.loadbalancer.server.port=8001"
+
   googlesearchserver:
     build: googlesearchserver
     ports:
-      - '81'
+      - '81:81'
     environment:
       - GOOGLE_API_KEY1=${GOOGLE_API_KEY1}
       - GOOGLE_SEARCH_ENGINE_ID1=${GOOGLE_SEARCH_ENGINE_ID1}
@@ -43,14 +46,15 @@ services:
       - dokploy-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.<unique-name>.rule=Host(`admin.soloadio.com`)"
-      - "traefik.http.routers.<unique-name>.entrypoints=websecure"
-      - "traefik.http.routers.<unique-name>.tls.certResolver=letsencrypt"
-      - "traefik.http.services.<unique-name>.loadbalancer.server.port=81"
+      - "traefik.http.routers.googlesearchserver.rule=Host(`admin.soloadio.com`) && PathPrefix(`/search`)"
+      - "traefik.http.routers.googlesearchserver.entrypoints=websecure"
+      - "traefik.http.routers.googlesearchserver.tls.certresolver=letsencrypt"
+      - "traefik.http.services.googlesearchserver.loadbalancer.server.port=81"
+
   frontend:
     build: frontend
     ports:
-      - '4201'
+      - '4200:4200'
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG}
@@ -66,10 +70,11 @@ services:
       - dokploy-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.<unique-name>.rule=Host(`admin.soloadio.com`)"
-      - "traefik.http.routers.<unique-name>.entrypoints=websecure"
-      - "traefik.http.routers.<unique-name>.tls.certResolver=letsencrypt"
-      - "traefik.http.services.<unique-name>.loadbalancer.server.port=4201"        
+      - "traefik.http.routers.frontend.rule=Host(`admin.soloadio.com`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.frontend.loadbalancer.server.port=4200"
+
 networks:
   dokploy-network:
     external: true
