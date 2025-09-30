@@ -246,23 +246,23 @@ class ScientificWebCrawler:
     #     return []
     
 
-    # def get_allrelativeurls2(self, query: str, filter: list[str]=[], exclude: list[str]=[]):
-    #     """
-    #     Returns a list of a maximum of 10 filtered relative urls based on a Google query
+    def get_allrelativeurls2(self, query: str, filter: list[str]=[], exclude: list[str]=[]):
+        """
+        Returns a list of a maximum of 10 filtered relative urls based on a Google query
         
-    #     Args:
-    #         url (str): The url to be processed.
-    #         filter (list[str]): A list of possible strings to filter for in the URLs.
-    #         exclude (list[str]): A list of possible strings in URL to be excluded from.
+        Args:
+            url (str): The url to be processed.
+            filter (list[str]): A list of possible strings to filter for in the URLs.
+            exclude (list[str]): A list of possible strings in URL to be excluded from.
 
-    #     Returns:
-    #         filtered_urls (list[str]): A list of filtered relative links on a given URL.
-    #     """
-    #     urls = self.get_websites(query, 10)
+        Returns:
+            filtered_urls (list[str]): A list of filtered relative links on a given URL.
+        """
+        urls = self.get_websites(query, 10)
 
-    #     filtered_urls = self._filterurls(urls, filter, exclude)
+        filtered_urls = self._filterurls(urls, filter, exclude)
 
-    #     return filtered_urls
+        return filtered_urls
     
 
     # def _filterurls(self, urls: list[str], filter: list[str], exclude: list[str]):
