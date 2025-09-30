@@ -51,6 +51,8 @@ class ScientificWebCrawler:
         final_result = ""
         try:
             page.goto(url, timeout=30000)  # 30s timeout for slow pages
+            html_content = page.content()   # get the HTML of the page
+            print(f"Heres the html content: {html_content}")
             page.wait_for_selector('section', timeout=10000)
             sections = page.query_selector_all('section')
 
