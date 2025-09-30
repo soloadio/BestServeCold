@@ -20,35 +20,40 @@ class ScientificWebCrawler:
         # 3️⃣ Open a single browser instance
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
-
-            # 4️⃣ Loop over each URL in sequence
-            for url in urls:
-                page = browser.new_page()
+            try:
+                # 4️⃣ Loop over each URL in sequence
+                for url in urls:
+                    page = browser.new_page()
+                    try:
+                        data = self._scrape_page(page, url)
+                        if data:
+                            return {'url': url, 'data': data}  # Return first valid result
+                    except Exception as e:
+                        print(f"Failed to get conclusion for {url}: {e}")
+                    finally:
+                        # ALWAYS close the page
+                        try:
+                            page.close()
+                        except Exception:
+                            pass
+            finally:
+                # 5️⃣ Close browser at the end
                 try:
-                    # Use a helper to scrape the discussion/conclusion
-                    data = self._scrape_page(page, url)
-                    if data:
-                        browser.close()
-                        return {'url': url, 'data': data}  # Return first valid result
-                except Exception as e:
-                    print(f"Failed to get conclusion for {url}: {e}")
-                finally:
-                    page.close()
-
-            # 5️⃣ Close browser if no valid data found
-            browser.close()
+                    browser.close()
+                except Exception:
+                    pass
 
         # 6️⃣ Return default if nothing found
         return noresult
-    
+
+
     def _scrape_page(self, page, url: str, filter: list[str] = ["conclu", "discussion"]):
         final_result = ""
         try:
-            page.goto(url, timeout=8000)
-            print(f"here is the {url} content: {page.content()}")
-            page.wait_for_selector('section', timeout=5000)
-            print(f"here is the {url} content2: {page.content()}")
+            page.goto(url, timeout=30000)  # 30s timeout for slow pages
+            page.wait_for_selector('section', timeout=10000)
             sections = page.query_selector_all('section')
+
             for section in sections:
                 header = section.query_selector('h2')
                 if header:
@@ -58,13 +63,13 @@ class ScientificWebCrawler:
                             paragraphs = section.query_selector_all('p, div')
                             final_result = " ".join([p.inner_text().strip() for p in paragraphs])
                             print(f"{word} section found in {url}")
-                            break
+                            return final_result  # Stop at first valid section
         except PlaywrightTimeoutError:
             print(f"Page load timeout for: {url}")
         except Exception as e:
             print(f"Error scraping {url}: {e}")
-        return final_result
 
+        return final_result
     def __init__(self):
         self.scraper = cloudscraper.create_scraper()
         self.page_load_delay = 2
