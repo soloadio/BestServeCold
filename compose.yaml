@@ -2,26 +2,26 @@ services:
   backend: 
     build: backend 
     ports: 
-      - 3000
+      - 8000:8000
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS}
       - GEMINI_KEY=${GEMINI_KEY}
-      - SERPAPI_KEY=${SERPAPI_KEY}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
       - CSE_ID=${CSE_ID}
       - GOOGLE_SEARCH_SERVER=${GOOGLE_SEARCH_SERVER}
       - DATABASE_URL=${DATABASE_URL}
       - CLIENT_ID=${CLIENT_ID}
+    restart: always
     networks:
       - dokploy-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.bestservecold.rule=Host(`bestservecold.soloadio.com`)"
+      - "traefik.http.routers.bestservecold.rule=Host('bestservecold.soloadio.com')"
       - "traefik.http.routers.bestservecold.entrypoints=websecure"
       - "traefik.http.routers.bestservecold.tls.certResolver=letsencrypt"
-      - "traefik.http.services.bestservecold.loadbalancer.server.port=3000"
+      - "traefik.http.services.bestservecold.loadbalancer.server.port=8000"
   # googlesearchserver:
   #   build: googlesearchserver
   #   ports:
