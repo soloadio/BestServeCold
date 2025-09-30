@@ -63,12 +63,12 @@ class ScientificWebCrawler:
             print(f"Error scraping {url}: {e}")
         return final_result
 
-    # def __init__(self):
-    #     self.scraper = cloudscraper.create_scraper()
-    #     self.page_load_delay = 2
-    #     self.retry_delay = 2
-    #     self.max_retries = 3
-    #     self.base_url = os.environ.get("GOOGLE_SEARCH_SERVER")
+    def __init__(self):
+        self.scraper = cloudscraper.create_scraper()
+        self.page_load_delay = 2
+        self.retry_delay = 2
+        self.max_retries = 3
+        self.base_url = os.environ.get("GOOGLE_SEARCH_SERVER")
     
     def get_websites(self, query: str, num_results: int = 1):
         """
