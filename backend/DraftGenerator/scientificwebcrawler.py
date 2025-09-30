@@ -45,7 +45,9 @@ class ScientificWebCrawler:
         final_result = ""
         try:
             page.goto(url, timeout=8000)
+            print(f"here is the {url} content: {page.content()}")
             page.wait_for_selector('section', timeout=5000)
+            print(f"here is the {url} content2: {page.content()}")
             sections = page.query_selector_all('section')
             for section in sections:
                 header = section.query_selector('h2')
