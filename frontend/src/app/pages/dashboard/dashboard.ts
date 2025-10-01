@@ -70,7 +70,7 @@ export class Dashboard implements OnInit{
     }
 
     this.backendservice.sendEmail(formData).subscribe({
-      next: (res: any) => {
+      next: (res) => {
         this.loading = false;
         this.error = false;
         console.log(res['message'])
@@ -78,7 +78,7 @@ export class Dashboard implements OnInit{
         sessionStorage.setItem('currentbatchid', res['id'])
         this.router.navigate(['/dashboard/result', this.emaildata.unique_id, res['id']])
       },
-      error: (err: any) => {
+      error: (err) => {
         console.error('Error generating draft', err);
         this.loading = false; // <- hide spinner if error
         this.error = true;

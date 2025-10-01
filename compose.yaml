@@ -93,17 +93,14 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - CLIENT_ID=${CLIENT_ID}
     restart: always
-    mem_limit: 2g
     networks:
       - dokploy-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.bestservecold-backend.rule=Host(`bestservecold.soloadio.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.bestservecold-backend.rule=Host(`bestservecoldapi.soloadio.com`)"
       - "traefik.http.routers.bestservecold-backend.entrypoints=websecure"
       - "traefik.http.routers.bestservecold-backend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.bestservecold-backend.loadbalancer.server.port=8000"
-      - "traefik.http.middlewares.bestservecold-backend-stripprefix.stripprefix.prefixes=/api"
-      - "traefik.http.routers.bestservecold-backend.middlewares=bestservecold-backend-stripprefix"
+      - "traefik.http.services.bestservecold-backend.loadbalancer.server.port=8000"  
 
   googlesearchserver:
     build: googlesearchserver
@@ -124,12 +121,10 @@ services:
       - dokploy-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.bestservecold-googlesearchserver.rule=Host(`bestservecold.soloadio.com`) && PathPrefix(`/googlesearchserver`)"
+      - "traefik.http.routers.bestservecold-googlesearchserver.rule=Host(`bestservecoldgss.soloadio.com`)"
       - "traefik.http.routers.bestservecold-googlesearchserver.entrypoints=websecure"
       - "traefik.http.routers.bestservecold-googlesearchserver.tls.certresolver=letsencrypt"
-      - "traefik.http.services.bestservecold-googlesearchserver.loadbalancer.server.port=81"
-      - "traefik.http.middlewares.bestservecold-googlesearchserver-stripprefix.stripprefix.prefixes=/googlesearchserver"
-      - "traefik.http.routers.bestservecold-googlesearchserver.middlewares=bestservecold-googlesearchserver-stripprefix"
+      - "traefik.http.services.bestservecold-googlesearchserver.loadbalancer.server.port=81"  
 
   frontend:
     build: frontend
@@ -147,7 +142,7 @@ services:
       - dokploy-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.bestservecold-frontend.rule=Host(`bestservecold.soloadio.com`) && PathPrefix(`/`)"
+      - "traefik.http.routers.bestservecold-frontend.rule=Host(`bestservecold.soloadio.com`)"
       - "traefik.http.routers.bestservecold-frontend.entrypoints=websecure"
       - "traefik.http.routers.bestservecold-frontend.tls.certresolver=letsencrypt"
       - "traefik.http.services.bestservecold-frontend.loadbalancer.server.port=4201"        
