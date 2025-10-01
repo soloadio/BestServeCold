@@ -158,11 +158,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 CORS_ALLOWED_ORIGINS = [
-    "http://bestservecold.com",
-    "http://localhost:4200",
-    "https://bestservecold.vercel.app",
-    "https://pcgoytgstw.a.pinggy.link",
-    "http://192.168.40.6:4200",
-    "https://bestservecold.soloadio.com",     # frontend
-    "https://bestservecoldapi.soloadio.com",  # backend API
+    "https://bestservecold.soloadio.com",   # Angular frontend
+    "http://localhost:4200",                # local dev
 ]
+CORS_ALLOW_CREDENTIALS = True
