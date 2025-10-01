@@ -288,7 +288,7 @@ class ScientificWebCrawler:
         self.page_load_delay = 2
         self.retry_delay = 2
         self.max_retries = 3
-        self.base_url = "http://0.0.0.0:81/search"
+        self.base_url = os.environ.get("GOOGLE_SEARCH_SERVER")
 
     # ---------------- Memory Logging ----------------
     def _log_memory(self, label=""):
@@ -403,7 +403,7 @@ if __name__ == "__main__":
     load_dotenv()
 
     crawler = ScientificWebCrawler()
-    people = ["Brian Coombes Research Paper"]
+    people = ["Ying Fu Li Lab"]
 
     for person in people:
         result = crawler.process(person)
