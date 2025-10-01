@@ -14,5 +14,5 @@ export const environment = {
     CLIENT_ID:"812330712843-66r7b1cd1r6fp1q73jgjb8c90oit57g5.apps.googleusercontent.com",
 
     GOOGLE_SEARCH_SERVER:"http://localhost:3000/search",
-    BACKEND_SERVER:"https://bestservecold.soloadio.com/api"
+    BACKEND_SERVER:"https://bestservecoldapi.soloadio.com"
 };
