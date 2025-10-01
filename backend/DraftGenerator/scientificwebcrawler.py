@@ -362,7 +362,9 @@ class ScientificWebCrawler:
                                 if word in header_text:
                                     paragraphs = section.query_selector_all('p, div')
                                     final_result = " ".join([p.inner_text().strip() for p in paragraphs])
+                                    snippet = final_result[:300] + ("..." if len(final_result) > 300 else "")
                                     print(f"✅ {word} section found at {url}")
+                                    print(f"📄 Snippet: {snippet}\n")
                                     break
                 except PlaywrightTimeoutError:
                     print(f"⏱ Page load timeout for URL: {url}")
@@ -374,7 +376,6 @@ class ScientificWebCrawler:
             print(f"❌ Playwright error for URL {url}: {e}")
             self._log_system_info()
         return final_result
-
     def get_allrelativelinks(self, url: str, filter: list[str]=["https://doi.org/"], exclude: list[str]=["account"]):
         try:
             with sync_playwright() as p:
