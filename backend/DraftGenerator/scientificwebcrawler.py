@@ -75,44 +75,44 @@ class ScientificWebCrawler:
         return False
 
 
-    # def get_researchdata(self, urls: list[str]):
-    #     """
-    #     Launches multiple processes to fetch data concurrently.
-    #     Returns the first valid research data and kills other processes.
-    #     """
-    #     multitasker = Multitasker()
-    #     researchdata = multitasker.run(self.worker, urls, (), self.valid_data, stop_on_first_valid=False)
-        
-    #     # print(researchdata)
-    #     return researchdata
-
-
     def get_researchdata(self, urls: list[str]):
         """
-        Returns any single valid research data from urls.
-
-        Args:
-            urls (list[str]): A list of urls to process research data.
-        
-        Returns:
-            researchdata (dict): A key value pair of data from a research paper. Format:
-                "url" : "www.example.com" -> The URL the research data is processed from
-                "data" : The research data from url.
-
-                {'url': None, 'data': None} -> Returns none if no research data was found.
+        Launches multiple processes to fetch data concurrently.
+        Returns the first valid research data and kills other processes.
         """
-
-        researchdata = {'url': None, 'data': None}
-
-        for url in urls:
-            try:
-                data = self._get_datafromurl(url)
-                if data:
-                    researchdata['url'] = url
-                    researchdata['data'] = data
-            except Exception as e:
-                print(f"Failed to get conclusion for {url}: {e}")
+        multitasker = Multitasker()
+        researchdata = multitasker.run(self.worker, urls, (), self.valid_data, stop_on_first_valid=False)
+        
+        # print(researchdata)
         return researchdata
+
+
+    # def get_researchdata(self, urls: list[str]):
+    #     """
+    #     Returns any single valid research data from urls.
+
+    #     Args:
+    #         urls (list[str]): A list of urls to process research data.
+        
+    #     Returns:
+    #         researchdata (dict): A key value pair of data from a research paper. Format:
+    #             "url" : "www.example.com" -> The URL the research data is processed from
+    #             "data" : The research data from url.
+
+    #             {'url': None, 'data': None} -> Returns none if no research data was found.
+    #     """
+
+    #     researchdata = {'url': None, 'data': None}
+
+    #     for url in urls:
+    #         try:
+    #             data = self._get_datafromurl(url)
+    #             if data:
+    #                 researchdata['url'] = url
+    #                 researchdata['data'] = data
+    #         except Exception as e:
+    #             print(f"Failed to get conclusion for {url}: {e}")
+    #     return researchdata
 
 
     def _get_datafromurl(self, url: str, filter: list[str]=["conclu", "discussion"]):
