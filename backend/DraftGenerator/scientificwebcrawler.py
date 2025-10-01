@@ -2,11 +2,10 @@ import os
 import cloudscraper
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 import requests
-# from playwright_stealth import Stealth
-# from .multitasker import Multitasker
+from playwright_stealth import Stealth
+from .multitasker import Multitasker
 
 import time
-import resource
 
 class ScientificWebCrawler:
     def __init__(self):
