@@ -350,6 +350,7 @@ class ScientificWebCrawler:
                 browser = p.chromium.launch(headless=True)
                 page = browser.new_page()
                 page.goto(url, timeout=8000)
+                print("heres the content on the page:", page.content())
                 try:
                     page.wait_for_selector('section', timeout=5000)
                     time.sleep(5)
