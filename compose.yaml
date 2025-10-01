@@ -123,8 +123,8 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.bestservecold-googlesearchserver.rule=Host(`bestservecoldgss.soloadio.com`)"
       - "traefik.http.routers.bestservecold-googlesearchserver.entrypoints=websecure"
-      - "traefik.http.routers.bestservecold-googlesearchserver.tls.certresolver=letsencrypt"
-      - "traefik.http.services.bestservecold-googlesearchserver.loadbalancer.server.port=81"  
+      - "traefik.http.routers.bestservecold-googlesearchserver.tls.certresolver=false"
+      - "traefik.http.services.bestservecold-googlesearchserver.loadbalancer.server.port=81"
 
   frontend:
     build: frontend
