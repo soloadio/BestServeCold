@@ -87,6 +87,10 @@ class ScientificWebCrawler:
             html_content = page.content()
             print(f"[SCRAPE] Page HTML length: {len(html_content)} characters")
 
+            if len(html_content) < 200:
+                print(f"[WARN] Tiny page content, skipping {url}")
+                return ""
+
             page.wait_for_selector('section', timeout=10000)
             sections = page.query_selector_all('section')
             print(f"[SCRAPE] Found {len(sections)} <section> elements")
