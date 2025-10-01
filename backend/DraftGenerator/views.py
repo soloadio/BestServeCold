@@ -360,6 +360,7 @@ class BatchListAPIView(APIView):
                 user = User.objects.get(unique_id=unique_id)
                 batches = Batch.objects.filter(user=user).order_by('-created_at')[:10]  # 10 most recent
                 serializer = BatchSerializer(batches, many=True)
+                print("DEBUG: Serialized batches:", serializer.data)  # <--- add this
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except User.DoesNotExist:
                 return Response(
