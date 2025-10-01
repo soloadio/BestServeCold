@@ -358,7 +358,7 @@ class ScientificWebCrawler:
     def _get_datafromurl(self, url: str, filter: list[str] = ["conclu", "discussion",  "abstract", "introduction"]):
         final_result = ""
         with Stealth().use_sync(sync_playwright()) as p:
-            browser = p.chromium.launch(headless=False)
+            browser = p.chromium.launch(headless=True)
             page = browser.new_page()
             try:
                 final_result = self._scrape_page(page, url, filter)
