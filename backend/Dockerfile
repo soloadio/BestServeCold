@@ -1,87 +1,36 @@
-# FROM python:3.13-slim AS builder
+# ---- Base image ----
+FROM python:3.13-slim AS base
 
-# RUN mkdir /app
-# WORKDIR /app
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/home/appuser/.local/bin:$PATH"
 
-# # Upgrade pip
-# RUN pip install --upgrade pip 
+# Install system dependencies (add others if your requirements need them)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# # Copy the Django project  and install dependencies
-# COPY requirements.txt  /app/
-
-# # run this command to install all dependencies 
-# RUN pip install --no-cache-dir -r requirements.txt
-
-# # Copy the Django project to the container
-# COPY . /app/
-
-# # Expose the Django port
-# EXPOSE 8000
-
-# ENV PYTHONDONTWRITEBYTECODE=1
-# ENV PYTHONUNBUFFERED=1 
-
-
-FROM python:3.13-slim
-
-RUN useradd -m -r appuser && \
-    mkdir /app && \
-    chown -R appuser /app
-
-# Copy the Python dependencies from the builder stage
-COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
-COPY --from=builder /usr/local/bin/ /usr/local/bin/
-
-# Set the working directory
+# Create user and app directory
+RUN useradd -m -r appuser && mkdir /app && chown -R appuser:appuser /app
 WORKDIR /app
 
-# Copy application code
-COPY --chown=appuser:appuser . .
+# ---- Dependencies ----
+COPY requirements.txt /app/
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
-# Set environment variables to optimize Python
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1 
+# ---- Application code ----
+COPY --chown=appuser:appuser . /app/
 
-# Switch to non-root user
+# Switch to non-root
 USER appuser
 
-# Expose the application port
-EXPOSE 8000 
+# Expose Django/Gunicorn port
+EXPOSE 8000
 
-# Start the application using Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "BestServeCold.wsgi:application"]
-
-# # escape=`
-
-# # Use Windows Python base image
-# # Stage 1: Builder
-# # Use Playwright noble image as base
-# # Use Microsoft Playwright noble image as base
-# FROM mcr.microsoft.com/playwright/python:v1.55.0-noble
-
-# # Set working directory
-# WORKDIR /app
-
-# # Create non-root user
-# RUN useradd -m -r appuser && chown -R appuser /app
-
-# # Copy Python dependencies and install
-# COPY requirements.txt /app/
-# RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
-
-# # Copy the Django project code
-# COPY . /app/
-# RUN chown -R appuser:appuser /app
-
-# # Switch to non-root user
-# USER appuser
-
-# # Set environment variables to optimize Python
-# ENV PYTHONDONTWRITEBYTECODE=1
-# ENV PYTHONUNBUFFERED=1
-
-# # Expose Django port
-# EXPOSE 8000
-
-# # Start the application using Gunicorn
-# CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "1", "--timeout", "120", "BestServeCold.wsgi:application"]
+# ---- Run with Gunicorn ----
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers=3", "--timeout=120", "BestServeCold.wsgi:application"]
