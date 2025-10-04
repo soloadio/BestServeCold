@@ -271,141 +271,168 @@
 #         print("\n")
 #         print(conclusionparagraph)
 #         print("\n")
-
 import os
-import time
-import resource
 import requests
-import cloudscraper
-from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
-from playwright_stealth import Stealth
-# from .multitasker import Multitasker
-
+import re
+import curl_cffi
+from bs4 import BeautifulSoup
 
 class ScientificWebCrawler:
     def __init__(self):
-        self.scraper = cloudscraper.create_scraper()
-        self.page_load_delay = 2
-        self.retry_delay = 2
-        self.max_retries = 3
         self.base_url = os.environ.get("GOOGLE_SEARCH_SERVER")
+    
+    def get_websites(self, query: str, num_results: int = 1):
+        """
+        Returns the top 'num_results' search result URLs for a query using the Google Custom Search API
+        via the Node.js MCP server.
 
-    # ---------------- Memory Logging ----------------
-    def _log_memory(self, label=""):
-        usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        print(f"[MEMORY] {label} | Memory usage: {usage / 1024:.2f} MB")
-
-    # ---------------- Google Search ----------------
-    def get_websites(self, query: str, num_results: int = 10):
+        Args:
+            query (str): The string to search in Google
+            num_results (int): The number of results to return
+        
+        Returns:
+            list (str): A list of URLs
+        """
         if not query or not query.strip():
             raise ValueError("Query must be a non-empty string.")
-        payload = {"query": query, "numResults": num_results}
+
+        payload = {
+            "query": query,
+            "numResults": num_results
+        }
+        print(self.base_url)
+
         try:
             response = requests.post(self.base_url, json=payload, timeout=10)
+
+            # Check for HTTP errors
             response.raise_for_status()
+
             data = response.json()
-            urls = [item['url'] for item in data.get('results', [])]
+
+            # Extract only the URLs
+            urls = [item['url'] for item in data['results']]
+
             return urls
+
         except requests.exceptions.RequestException as e:
             print(f"❌ Error calling search API: {e}")
             return []
 
-    # ---------------- URL Filtering ----------------
-    def _filterurls(self, urls: list[str], filter: list[str], exclude: list[str]):
-        filtered_url = []
-        for url in urls:
-            if any(ex in url for ex in exclude):
-                continue
-            if not filter or any(word in url for word in filter):
-                filtered_url.append(url)
-        return filtered_url
 
-    def get_allrelativeurls2(self, query: str, filter: list[str] = [], exclude: list[str] = []):
-        urls = self.get_websites(query, 10)
-        return self._filterurls(urls, filter, exclude)
-
-    # ---------------- Scraping ----------------
-    def _scrape_page(self, page, url: str, filter: list[str] = ["conclu", "discussion", "abstract", "introduction"]):
-        final_result = ""
-        try:
-            print(f"[SCRAPE] Navigating to {url}")
-            start_nav = time.time()
-            page.goto(url, timeout=30000)
-            end_nav = time.time()
-            print(f"[SCRAPE] Navigation done in {end_nav - start_nav:.2f}s")
-
-            page.wait_for_selector('section', timeout=10000)
-            sections = page.query_selector_all('section')
-            print(f"[SCRAPE] Found {len(sections)} <section> elements")
-
-            for idx, section in enumerate(sections, start=1):
-                header = section.query_selector('h2')
-                if header:
-                    header_text = header.inner_text().lower()
-                    for word in filter:
-                        if word in header_text:
-                            paragraphs = section.query_selector_all('p, div')
-                            final_result = " ".join([p.inner_text().strip() for p in paragraphs])
-                            print(f"[SCRAPE] {word} section found in section {idx}")
-                            return final_result
-        except PlaywrightTimeoutError:
-            print(f"[SCRAPE] Page load timeout for: {url}")
-        except Exception as e:
-            print(f"[SCRAPE] Error scraping {url}: {e}")
-        return final_result
-
-    # ---------------- Page Worker ----------------
-    def _get_datafromurl(self, url: str, filter: list[str] = ["conclu", "discussion",  "abstract", "introduction"]):
-        final_result = ""
-        with Stealth().use_sync(sync_playwright()) as p:
-            browser = p.chromium.launch(headless=True)
-            page = browser.new_page()
-            try:
-                final_result = self._scrape_page(page, url, filter)
-            finally:
-                page.close()
-                browser.close()
-        return final_result
-
-    # ---------------- Process URLs ----------------
     def get_researchdata(self, urls: list[str]):
         """
-        Returns the first valid research data found from the given list of URLs.
+        Returns any single valid research data from urls.
+
+        Args:
+            urls (list[str]): A list of urls to process research data.
+        
+        Returns:
+            researchdata (dict): A key value pair of data from a research paper. Format:
+                "url" : "www.example.com" -> The URL the research data is processed from
+                "data" : The research data from url.
+
+                {'url': None, 'data': None} -> Returns none if no research data was found.
         """
+        if not urls:   # nothing to process
+            return {'url': None, 'data': None}
+
         for url in urls:
-            try:
-                data = self._get_datafromurl(url)
-                if data:
-                    return {"url": url, "data": data}
-            except Exception as e:
-                print(f"[ERROR] Failed to get data from {url}: {e}")
-        return {"url": None, "data": None}
+            data = self._get_datafromurl(url)
+            if data['data']:
+                return data
+            print(f"Did not find any data in: {data['url']}")
 
-    # ---------------- Main Process ----------------
+        # if no data found in any URL, return empty
+        return {'url': None, 'data': None}
+
+
+    def _get_datafromurl(self, url: str, filter: list[str]=["conclu", "discussion"]):
+        researchdata = {'url': url, 'data': None}
+
+        response = curl_cffi.requests.get(url, impersonate="safari_ios", verify=False)
+
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        target_h2 = soup.find("h2", string=re.compile(r"(conclu|discussion)", re.I))
+
+        if target_h2:
+            # get the parent section that contains this h2
+            section = target_h2.find_parent("section")
+            if section:
+                print(section.get_text(strip=True))
+                researchdata["data"] = section.get_text(strip=True)
+            else:
+                print("H2 found but no parent section")
+        else:
+            print("No matching H2 found")
+
+        return researchdata
+
+
+    def get_allrelativeurls(self, query: str, filter: list[str]=[], exclude: list[str]=[]):
+        """
+        Returns a list of a maximum of 10 filtered relative urls based on a Google query
+        
+        Args:
+            url (str): The url to be processed.
+            filter (list[str]): A list of possible strings to filter for in the URLs.
+            exclude (list[str]): A list of possible strings in URL to be excluded from.
+
+        Returns:
+            filtered_urls (list[str]): A list of filtered relative links on a given URL.
+        """
+        urls = self.get_websites(query, 10)
+
+        filtered_urls = self._filterurls(urls, filter, exclude)
+
+        return filtered_urls
+    
+
+    def _filterurls(self, urls: list[str], filter: list[str], exclude: list[str]):
+        """
+        Returns a list of filtered urls based on filter and exclude.
+        
+        Args:
+            urls (str): The list of urls to be filtered.
+            filter (list[str]): A list of possible strings to filter for in the URLs.
+            exclude (list[str]): A list of possible strings in URL to be excluded from.
+
+        Returns:
+            filtered_url (list[str]): A filtered list of urls.
+        """
+        filtered_url = []
+        if not filter and not exclude:
+            return urls
+        
+        for url in urls:
+            # Filters each of the links, removing any link that contains an exclusion and doesn't contain the filter
+
+            for exclusion in exclude:
+                if exclusion in url:
+                    break
+                else:
+                    for word in filter:
+                        if word in url:
+
+                            filtered_url.append(word)
+        
+        return filtered_url
+
+
     def process(self, query: str):
-        self._log_memory("Start process")
-        start_time = time.time()
+        urls = self.get_allrelativeurls(query)
+        if not urls:
+            print("error retrieving urls")
+        print(f"Found {len(urls)} URLs: {', '.join(urls)}")
 
-        urls = self.get_allrelativeurls2(query)
-        print(f"[INFO] Found {len(urls)} URLs: {', '.join(urls)}")
+        researchdata = self.get_researchdata(urls)
 
-        result = self.get_researchdata(urls)
-
-        total_time = time.time() - start_time
-        print(f"[INFO] Process finished in {total_time:.2f}s")
-        self._log_memory("End process")
-
-        return result
-
+        return researchdata
+        # return 
 
 if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()
-
-    crawler = ScientificWebCrawler()
-    people = ["Ying Fu Li Lab"]
-
-    for person in people:
-        result = crawler.process(person)
-        print(f"\nResult for {person}:")
-        print(result)
+    crawl = ScientificWebCrawler()
+    crawl.process("Ying Fu Li Research Paper")
