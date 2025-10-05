@@ -32,4 +32,4 @@ USER appuser
 EXPOSE 8000
 
 # Start Django with Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers=3", "--timeout=120", "BestServeCold.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers=3", "--timeout=0", "BestServeCold.wsgi:application"]
