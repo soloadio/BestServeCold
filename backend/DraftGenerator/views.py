@@ -182,8 +182,8 @@ class DraftGeneratorAPIView(APIView):
         start = time.perf_counter()
         serializer = RequestSerializer(data=request.data)
 
-        print(serializer)
-        print(serializer.is_valid())
+        if not serializer.is_valid():
+            print(serializer.errors)
         if serializer.is_valid():
             
             unique_id = serializer.validated_data.get('unique_id', None)
