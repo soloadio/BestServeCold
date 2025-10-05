@@ -300,7 +300,6 @@ class ScientificWebCrawler:
             "query": query,
             "numResults": num_results
         }
-        print(self.base_url)
 
         try:
             response = requests.post(self.base_url, json=payload, timeout=10)
