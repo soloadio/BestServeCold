@@ -1,12 +1,11 @@
-# ---- Base image ----
-FROM python:3.13-slim AS base
+FROM python:3.13-slim
 
-# Set environment variables
+# System settings
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/home/appuser/.local/bin:$PATH"
 
-# Install system dependencies (add others if your requirements need them)
+# Install system dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     build-essential \
@@ -14,23 +13,23 @@ RUN apt-get update \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Create user and app directory
+# Create app directory & non-root user
 RUN useradd -m -r appuser && mkdir /app && chown -R appuser:appuser /app
 WORKDIR /app
 
-# ---- Dependencies ----
+# Install Python dependencies
 COPY requirements.txt /app/
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
-# ---- Application code ----
+# Copy project code
 COPY --chown=appuser:appuser . /app/
 
-# Switch to non-root
+# Switch to non-root user
 USER appuser
 
 # Expose Django/Gunicorn port
 EXPOSE 8000
 
-# ---- Run with Gunicorn ----
+# Start Django with Gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers=3", "--timeout=120", "BestServeCold.wsgi:application"]
